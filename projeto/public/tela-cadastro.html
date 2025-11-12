@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro</title>
+    <link rel="stylesheet" href="./css/tela-cadastro.css">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1 class="logo">ChessJourney</h1>
+            <ul class="navbar">
+                <li><a href="index.html">Início</a></li>
+                <li><a href="tutorial.html">Tutorial</a></li>
+                <li>|</li>
+                <li><a href="tela-login.html">Login</a></li>
+                <li class="ativo"><a href="#">Cadastro</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="caixa1">
+            <h1>Crie sua conta<br>e comece sua jornada agora!</h1>
+            <img src="./assets/xadrez-cadastro.svg" class="caixa1-img" alt="Imagem Cadastro">
+        </div>
+
+        <div class="caixa2">
+            <div class="card">
+                <h1>CADASTRO</h1>
+                <div class="campos">
+                    <label for="nome">Nome completo</label>
+                    <input type="text" id="nome_input" placeholder="Seu nome completo">
+                </div>
+                <div class="campos">
+                    <label for="email">Email</label>
+                    <input type="email" id="email_input" placeholder="Seu email">
+                </div>
+                <div class="campos">
+                    <label for="usuario">Usuário</label>
+                    <input type="text" id="usuario_input" placeholder="Nome de usuário">
+                </div>
+                <div class="campos">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha_input" placeholder="Crie uma senha">
+                </div>
+                <div class="campos">
+                    <label for="confirmar-senha">Confirmar senha</label>
+                    <input type="password" id="confirmar_senha_input" placeholder="Repita sua senha">
+                </div>
+                <button class="botao" onclick="cadastrar(); redirecionarParalogin();">Cadastrar</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+<script>
+
+  // Array para armazenar empresas cadastradas para validação de código de ativação 
+  let listaEmpresasCadastradas = [];
+    function redirecionarParalogin() {
+            window.location.href = 'tela-login.html';
+        }
+  function cadastrar() {
+    // aguardar();
+
+    //Recupere o valor da nova input pelo nome do id
+    // Agora vá para o método fetch logo abaixo
+    var nomeVar = nome_input.value;
+    var emailVar = email_input.value;
+    var senhaVar = senha_input.value;
+    var confirmacaoSenhaVar = confirmar_senha_input.value;
+    var usuarioVar = usuario_input.value;
+
+    // Verificando se há algum campo em branco
+    if (
+      nomeVar == "" ||
+      emailVar == "" ||
+      usuarioVar == "" ||
+      senhaVar == "" ||
+      confirmacaoSenhaVar == "" 
+    );
+
+
+
+    // Enviando o valor da nova input
+    fetch("/usuarios/cadastrar", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        // crie um atributo que recebe o valor recuperado aqui
+        // Agora vá para o arquivo routes/usuario.js
+        nomeServer: usuarioVar,
+        emailServer: emailVar,
+        senhaServer: senhaVar
+      }),
+    });
+
+  }
+</script>
