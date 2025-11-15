@@ -15,15 +15,39 @@ async function obterQuiz(req, res) {
         }
 
         const nivelAtual = resultadoNivel[0].nivel_atual;
+        const linhas = await quizModel.buscarQuestoesPorNivel(nivelAtual);
 
-        const questoes = await quizModel.buscarQuestoesPorNivel(nivelAtual);
-
-        if (questoes.length === 0) {
-            res.status(204).send("Quiz não encontrado para o nível atual");
+        if (linhas.length === 0) {
+            res.status(204).send("Nenhum quiz encontrado para este nível");
             return;
         }
 
-        res.status(200).json(questoes);
+        const quizMontado = {
+            titulo: linhas[0].titulo,
+            perguntas: []
+        };
+
+        const mapaPerguntas = {};
+
+        for (let linha of linhas) {
+            if (!mapaPerguntas[linha.id_pergunta]) {
+                mapaPerguntas[linha.id_pergunta] = {
+                    id_pergunta: linha.id_pergunta,
+                    enunciado: linha.enunciado,
+                    alternativas: []
+                };
+            }
+
+            mapaPerguntas[linha.id_pergunta].alternativas.push({
+                id_alternativa: linha.id_alternativa,
+                texto: linha.texto_alternativa,
+                correta: linha.correta ? 1 : 0
+            });
+        }
+
+        quizMontado.perguntas = Object.values(mapaPerguntas);
+
+        res.status(200).json(quizMontado);
 
     } catch (erro) {
         console.log(erro);

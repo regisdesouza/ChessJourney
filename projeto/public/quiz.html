@@ -1,184 +1,107 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz</title>
-<link rel="stylesheet" href="./css/quiz.css">
+    <meta charset="UTF-8">
+    <title>Quiz</title>
+    <link rel="stylesheet" href="./css/quiz.css">
 </head>
-<body onload="onloadEsconder(); carregarQuiz();">
+<body>
 
-<div id="pontuacaoEJogo">
-    <button id="btnIniciarQuiz" onclick="iniciarQuiz()">INICIAR QUIZ</button>
+<h1 id="tituloQuiz"></h1>
 
-    <div id="pontuacao" class="flex-colunar width-fit-content border-primary">
-        <div id="pontuacaoDuranteJogo" class="flex-colunar padding-8">
-            <span>Acertos: <span id="spanCertas">0</span></span>
-            <span>Erros: <span id="spanErradas">0</span></span>
-        </div>
-        <div id="pontuacaoFinalJogo" class="flex-colunar padding-8">
-            <span>Pontuação Final: <span id="spanPontuacaoFinal">0</span></span>
-            <span id="msgFinal">***</span>
-        </div>
+<div id="divQuiz" style="display:none;">
+    <h2 id="enunciado"></h2>
+
+    <div>
+        <input type="radio" name="alternativa" id="alt1"><label id="lbl1" for="alt1"></label><br>
+        <input type="radio" name="alternativa" id="alt2"><label id="lbl2" for="alt2"></label><br>
+        <input type="radio" name="alternativa" id="alt3"><label id="lbl3" for="alt3"></label><br>
+        <input type="radio" name="alternativa" id="alt4"><label id="lbl4" for="alt4"></label><br>
     </div>
 
-    <div id="jogo" class="width-fit-content flex-colunar border-secondary">
-        <div id="infoQuestao" class="padding-8">
-            Questão <span id="spanNumeroDaQuestaoAtual">0</span> de <span id="qtdQuestoes">0</span>
-        </div>
+    <button onclick="submeter()">Submeter resposta</button>
+    <button onclick="proxima()">Próxima</button>
 
-        <div id="perguntaDaQuestaoAtual" class="padding-8">
-            <span id="spanQuestaoExibida" class="text-bold"></span>
-        </div>
-
-        <div id="opcoes" class="flex-colunar padding-8">
-            <span><input type="radio" id="opcao1" name="option" value="1"><label for="opcao1" id="labelOpcao1"></label></span>
-            <span><input type="radio" id="opcao2" name="option" value="2"><label for="opcao2" id="labelOpcao2"></label></span>
-            <span><input type="radio" id="opcao3" name="option" value="3"><label for="opcao3" id="labelOpcao3"></label></span>
-            <span><input type="radio" id="opcao4" name="option" value="4"><label for="opcao4" id="labelOpcao4"></label></span>
-        </div>
-
-        <div id="botoes" class="flex-colunar padding-8">
-            <button id="btnSubmeter" onclick="submeter()">Submeter resposta</button>
-            <button id="btnProx" onclick="avancar()" disabled>Próxima</button>
-            <button id="btnTentarNovamente" onclick="tentarNovamente()" disabled>Tentar novamente</button>
-        </div>
-    </div>
+    <h3 id="status"></h3>
 </div>
 
+<button onclick="iniciarQuiz()">Iniciar</button>
+
 <script>
-let listaDeQuestoes = [];
-let numeroDaQuestaoAtual = 0;
-let pontuacaoFinal = 0;
-let certas = 0;
-let erradas = 0;
+let quiz = null;
+let index = 0;
+let acertos = 0;
+let erros = 0;
 
-function onloadEsconder() {
-    document.getElementById('pontuacao').style.display = "none";
-    document.getElementById('jogo').style.display = "none";
-}
-
-async function carregarQuiz() {
-    const idUsuario = sessionStorage.ID_USUARIO; 
-    if (!idUsuario) {
-        alert("Usuário não logado!");
-        window.location = "tela-login.html";
-        return;
-    }
-
-    try {
-        const response = await fetch(`http://localhost:3000/quiz/${idUsuario}`);
-        if (response.status === 200) {
-            listaDeQuestoes = await response.json();
-            document.getElementById('qtdQuestoes').innerText = listaDeQuestoes.length;
-        } else {
-            alert("Nenhum quiz encontrado para o seu nível.");
-        }
-    } catch (erro) {
-        console.error("Erro ao carregar quiz:", erro);
-    }
-}
-
-function iniciarQuiz() {
-    document.getElementById('pontuacao').style.display = "flex";
-    document.getElementById('jogo').style.display = "flex";
-    document.getElementById('btnIniciarQuiz').style.display = "none";
-    mostrarQuestao(numeroDaQuestaoAtual);
-    document.getElementById('btnSubmeter').disabled = false;
-    document.getElementById('btnProx').disabled = true;
-}
-
-function mostrarQuestao(index) {
-    const questao = listaDeQuestoes[index];
-    document.getElementById("spanNumeroDaQuestaoAtual").innerText = index + 1;
-    document.getElementById("spanQuestaoExibida").innerText = questao.enunciado;
-    document.getElementById("labelOpcao1").innerText = questao.alternativaA;
-    document.getElementById("labelOpcao2").innerText = questao.alternativaB;
-    document.getElementById("labelOpcao3").innerText = questao.alternativaC;
-    document.getElementById("labelOpcao4").innerText = questao.alternativaD;
-
-    for (let i = 1; i <= 4; i++) {
-        document.getElementById(`opcao${i}`).checked = false;
-        document.getElementById(`labelOpcao${i}`).className = "";
-    }
-}
-
-function submeter() {
-    let selecionada = null;
-    for (let i = 1; i <= 4; i++) {
-        if (document.getElementById(`opcao${i}`).checked) {
-            selecionada = i;
-            break;
-        }
-    }
-
-    if (!selecionada) {
-        alert("Escolha uma opção!");
-        return;
-    }
-
-    document.getElementById('btnSubmeter').disabled = true;
-    document.getElementById('btnProx').disabled = false;
-
-    const questaoAtual = listaDeQuestoes[numeroDaQuestaoAtual];
-    const correta = questaoAtual.correta;
-
-    for (let i = 1; i <= 4; i++) {
-        if (i === correta) {
-      pontuacaoFinal++;
-    certas++;
-        }
-    }
-
-
-    document.getElementById('spanCertas').innerText = certas;
-    document.getElementById('spanErradas').innerText = erradas;
-
-    enviarRespostaAPI(questaoAtual.id_pergunta, selecionada, selecionada === correta);
-}
-
-function avancar() {
-    numeroDaQuestaoAtual++;
-    if (numeroDaQuestaoAtual < listaDeQuestoes.length) {
-        mostrarQuestao(numeroDaQuestaoAtual);
-        document.getElementById('btnSubmeter').disabled = false;
-        document.getElementById('btnProx').disabled = true;
-    } else {
-        finalizarJogo();
-    }
-}
-
-function tentarNovamente() {
-    window.location.reload();
-}
-
-function finalizarJogo() {
-    document.getElementById('spanPontuacaoFinal').innerText = pontuacaoFinal;
-    let msg = pontuacaoFinal / listaDeQuestoes.length >= 0.9 ? "Parabéns!" :
-              pontuacaoFinal / listaDeQuestoes.length >= 0.3 ? "Pode melhorar!" :
-              "Estude mais!";
-    document.getElementById('msgFinal').innerText = msg;
-
-    document.getElementById('btnSubmeter').disabled = true;
-    document.getElementById('btnProx').disabled = true;
-    document.getElementById('btnTentarNovamente').disabled = false;
-}
-
-async function enviarRespostaAPI(idPergunta, idAlternativa, correta) {
+async function iniciarQuiz() {
     const idUsuario = sessionStorage.ID_USUARIO;
-    try {
-        await fetch('http://localhost:3000/quiz/resposta', {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({
-                idUsuario: idUsuario,
-                idPergunta: idPergunta,
-                alternativaEscolhida: idAlternativa,
-                correta: correta
-            })
-        });
-    } catch (erro) {
-        console.error("Erro ao enviar resposta:", erro);
+    const resposta = await fetch(`/quiz/${idUsuario}`);
+    quiz = await resposta.json();
+
+    document.getElementById("tituloQuiz").innerText = quiz.titulo;
+    document.getElementById("divQuiz").style.display = "block";
+
+    index = 0;
+    mostrarQuestao();
+}
+
+function mostrarQuestao() {
+    const q = quiz.perguntas[index];
+
+    document.getElementById("enunciado").innerText = q.enunciado;
+
+    document.getElementById("lbl1").innerText = q.alternativas[0].texto;
+    document.getElementById("lbl2").innerText = q.alternativas[1].texto;
+    document.getElementById("lbl3").innerText = q.alternativas[2].texto;
+    document.getElementById("lbl4").innerText = q.alternativas[3].texto;
+
+    document.getElementById("alt1").value = q.alternativas[0].id_alternativa;
+    document.getElementById("alt2").value = q.alternativas[1].id_alternativa;
+    document.getElementById("alt3").value = q.alternativas[2].id_alternativa;
+    document.getElementById("alt4").value = q.alternativas[3].id_alternativa;
+
+    document.querySelectorAll("input[name='alternativa']").forEach(e => e.checked = false);
+
+    document.getElementById("status").innerText = `Acertos: ${acertos} Erros: ${erros}`;
+}
+
+async function submeter() {
+    const marcada = document.querySelector("input[name='alternativa']:checked");
+    if (!marcada) return;
+
+    const idAlternativa = Number(marcada.value);
+
+    const q = quiz.perguntas[index];
+    const alternativaCorreta = q.alternativas.find(a => a.correta == 1);
+
+    const correta = alternativaCorreta.id_alternativa === idAlternativa;
+
+    if (correta) acertos++;
+    else erros++;
+
+    document.getElementById("status").innerText = `Acertos: ${acertos} Erros: ${erros}`;
+
+    await fetch("/quiz/resposta", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            idUsuario: sessionStorage.ID_USUARIO,
+            idPergunta: q.id_pergunta,
+            idAlternativaEscolhida: idAlternativa,
+            correta: correta
+        })
+    });
+}
+
+function proxima() {
+    index++;
+    if (index >= quiz.perguntas.length) {
+        document.getElementById("enunciado").innerText = `Pontuação Final: ${acertos}`;
+        return;
     }
+    mostrarQuestao();
 }
 </script>
+
+</body>
+</html>
