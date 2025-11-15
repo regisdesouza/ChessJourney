@@ -49,7 +49,7 @@
                     <label for="confirmar_senha_input">Confirmar senha</label>
                     <input type="password" id="confirmar_senha_input" placeholder="Repita sua senha">
                 </div>
-                <button class="botao" onclick="cadastrar(); irParaLogin();">Cadastrar</button>
+                <button id="botao_cadastrar" class="botao" onclick="cadastrar()">Cadastrar</button>
             </div>
         </div>
     </div>
@@ -58,61 +58,81 @@
 
 <script>
 
-    function irParaLogin() {
-            window.location.href = 'tela-login.html';
-        }
-  function cadastrar() {
-    // aguardar();
+function irParaLogin() {
+    window.location.href = 'tela-login.html';
+}
 
-    //Recupere o valor da nova input pelo nome do id
-    // Agora vá para o método fetch logo abaixo
-    var nomeVar = nome_input.value;
-    var emailVar = email_input.value;
+function cadastrar() {
+
+    var carregando = false;
+    var nomeVar = nome_input.value.trim();
+    var emailVar = email_input.value.trim();
+    var usuarioVar = usuario_input.value.trim();
     var senhaVar = senha_input.value;
     var confirmacaoSenhaVar = confirmar_senha_input.value;
-    var usuarioVar = usuario_input.value;
+    var botao = document.getElementById("botao_cadastrar");
 
-    // Verificando se há algum campo em branco
     if (
-      nomeVar == "" ||
-      emailVar == "" ||
-      usuarioVar == "" ||
-      senhaVar == "" ||
-      confirmacaoSenhaVar == "" 
-    ){
-    alert("Preencha todos os campos corretamente.");
-    return; 
-}
+        nomeVar == "" ||
+        emailVar == "" ||
+        usuarioVar == "" ||
+        senhaVar == "" ||
+        confirmacaoSenhaVar == "") {
+        alert("Preencha todos os campos corretamente.");
+        return;}
 
-if (senhaVar !== confirmacaoSenhaVar) {
-    alert("As senhas estão diferentes.");
-    return;
-}
+        if (nomeVar.length < 3) {
+        alert("O nome deve ter pelo menos 3 caracteres.");
+        return;}
 
- fetch("/usuarios/cadastrar", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-    nomeServer: nomeVar,
-    emailServer: emailVar,
-    usuarioServer: usuarioVar,
-    senhaServer: senhaVar,
-  }),
-})
-  .then(resposta => {
-    if (!resposta.ok) {
-      throw "Erro no servidor";
-    }
-    return resposta.json();
-  })
-  .then(data => {
-    alert("Cadastro concluído!");
-    window.location.href = "tela-login.html";
-  })
-  .catch(erro => {
-    console.log(erro);
-    alert("Não foi possível cadastrar.");
-  });
-  
+        if (!emailVar.includes("@") || !emailVar.includes(".")) {
+        alert("Digite um email válido.");
+        return}
+        if (usuarioVar.includes(" ")) {
+        alert("O usuário não pode conter espaços.");
+        return;}
+        if (senhaVar.length < 6) {
+        alert("A senha deve ter pelo menos 6 caracteres.");
+        return;}
+        if (senhaVar !== confirmacaoSenhaVar) {
+        alert("As senhas estão diferentes.");
+        return;}
+
+
+    carregando = true;
+
+    fetch("/usuarios/cadastrar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nomeServer: nomeVar,
+            emailServer: emailVar,
+            usuarioServer: usuarioVar,
+            senhaServer: senhaVar,
+        }),
+    })
+        .then(resposta => {
+
+            if (resposta.status === 409) {
+                alert("Usuário ou email já cadastrado.");
+                carregando = false;
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw "Erro no servidor";
+            }
+
+            return resposta.json();
+        })
+        .then(data => {
+            alert("Cadastro concluído!");
+            irParaLogin();
+        })
+        .catch(erro => {
+            console.log(erro);
+            alert("Não foi possível cadastrar.");
+           carregando = false;
+        });
 }
 </script>
