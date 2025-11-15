@@ -2,31 +2,70 @@
 
 html, body {
     margin: 0;
+    padding: 0;
     font-family: 'Noto Sans', sans-serif;
-    height: 100%;
     background: #121212;
+}
+
+.header {
+    width: 100%;
+    border-bottom: 1px solid #2a2a2a;
+    background: #121212;
+}
+
+.header .container {
+    width: 90%;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 0;
+}
+
+.logo {
+    color: #EFBF04;
+    font-weight: 800;
+    font-size: 1.8rem;
+}
+
+.navbar {
+    display: flex;
+    list-style: none;
+    gap: 25px;
+    align-items: center;
+}
+
+.navbar li a {
+    color: white;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.navbar li a:hover,
+.navbar li.ativo a {
+    color: #EFBF04;
 }
 
 .container {
-    width: 100%;
-    height: 100%;
-    background: #121212;
     display: flex;
+    width: 100%;
+    margin-top: 40px;
+    padding-bottom: 40px;
 }
 
-.caixa1, .caixa2 {
+.caixa1 {
     flex: 1;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex-direction: column;
+    text-align: center;
 }
 
 .caixa1 > h1 {
     width: 60%;
     color: #EFBF04;
     font-weight: 800;
-    text-align: center;
     margin-bottom: 20px;
 }
 
@@ -35,19 +74,21 @@ html, body {
 }
 
 .caixa2 {
-    background: #121212;
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .card {
     width: 65%;
-    height: 85%;
     padding: 25px 35px;
     border-radius: 20px;
     border: 1px solid #6E6E73;
+    background: #121212;
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-top: 20px;
 }
 
 .card > h1 {
@@ -100,40 +141,4 @@ html, body {
 
 .botao:hover {
     background: #c99c02;
-}
-
-.header {
-    border-bottom: 1px solid #2a2a2a;
-}
-
-.header .container {
-    width: 90%;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center
-}
-
-.logo {
-    color: #EFBF04;
-    font-weight: 800;
-    font-size: 1.8rem;
-}
-
-.navbar {
-    list-style: none;
-    display: flex;
-    gap: 25px;
-    align-items: center;
-}
-
-.navbar li a {
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.navbar li a:hover,
-.navbar li.ativo a {
-    color: #EFBF04;
 }

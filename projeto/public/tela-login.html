@@ -20,45 +20,59 @@
         </div>
     </header>
 
-    <div class="container">
+    <div class="container-login">
         <div class="caixa1">
             <h1>Bem-vindo de volta!<br>Faça login e acompanhe a sua evolução.</h1>
             <img src="./assets/xadrez-login.svg" class="caixa1-img" alt="Imagem Login">
         </div>
+
         <div class="caixa2">
             <div class="card">
+                <div id="cardErro" class="erro" style="display: none">
+                    <span id="mensagem_erro"></span>
+                </div>
+
                 <h1>LOGIN</h1>
+
                 <div class="campos">
                     <label for="email">Email</label>
-                    <input id="email_input" type="text" name="Email" placeholder="usuarioxpto@gmail.com">
+                    <input id="email_input" type="email" name="Email" placeholder="usuarioxpto@gmail.com">
                 </div>
+
                 <div class="campos">
                     <label for="senha">Senha</label>
                     <input id="senha_input" type="password" placeholder="**********">
                 </div>
+
                 <button onclick="entrar()" class="botao">Login</button>
             </div>
         </div>
     </div>
 </body>
 </html>
+
 <script>
-
-
     function entrar() {
-
         var emailVar = email_input.value;
         var senhaVar = senha_input.value;
 
         if (emailVar == "" || senhaVar == "") {
-            cardErro.style.display = "block"
-            mensagem_erro.innerHTML = "(Mensagem de erro para todos os campos em branco)";
-            // finalizarAguardar();
+            cardErro.style.display = "block";
+            mensagem_erro.innerHTML = "Preencha todos os campos!";
             return false;
         }
 
-        console.log("FORM LOGIN: ", emailVar);
-        console.log("FORM SENHA: ", senhaVar);
+        if (!emailVar.includes("@") || !emailVar.includes(".")) {
+            cardErro.style.display = "block";
+            mensagem_erro.innerHTML = "Email inválido!";
+            return false;
+        }
+
+        if (senhaVar.length < 4) {
+            cardErro.style.display = "block";
+            mensagem_erro.innerHTML = "Senha deve ter ao menos 4 caracteres!";
+            return false;
+        }
 
         fetch("/usuarios/autenticar", {
             method: "POST",
@@ -69,41 +83,28 @@
                 emailServer: emailVar,
                 senhaServer: senhaVar
             })
-        }).then(function (resposta) {
-            console.log("ESTOU NO THEN DO entrar()!")
-
+        })
+        .then(function (resposta) {
             if (resposta.ok) {
-                console.log(resposta);
-
                 resposta.json().then(json => {
-                    console.log(json);
-                    console.log(JSON.stringify(json));
                     sessionStorage.ID_USUARIO = json.id_usuario;
                     sessionStorage.EMAIL_USUARIO = json.email;
                     sessionStorage.NOME_USUARIO = json.nome;
                     
                     window.location.href = './dashboard/dashboard.html';
                 });
-
             } else {
-
-                console.log("Houve um erro ao tentar realizar o login!");
-
                 resposta.text().then(texto => {
-                    console.error(texto);
-                    finalizarAguardar(texto);
+                    cardErro.style.display = "block";
+                    mensagem_erro.innerHTML = texto;
                 });
             }
-
-        }).catch(function (erro) {
-            console.log(erro);
         })
+        .catch((erro) => {
+            cardErro.style.display = "block";
+            mensagem_erro.innerHTML = "Erro ao conectar com o servidor!";
+        });
 
         return false;
     }
-
-    // function sumirMensagem() {
-    //     cardErro.style.display = "none"
-    // }
-
 </script>

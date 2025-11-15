@@ -30,26 +30,26 @@
             <div class="card">
                 <h1>CADASTRO</h1>
                 <div class="campos">
-                    <label for="nome">Nome completo</label>
+                    <label for="nome_input">Nome completo</label>
                     <input type="text" id="nome_input" placeholder="Seu nome completo">
                 </div>
                 <div class="campos">
-                    <label for="email">Email</label>
+                    <label for="email_input">Email</label>
                     <input type="email" id="email_input" placeholder="Seu email">
                 </div>
                 <div class="campos">
-                    <label for="usuario">Usuário</label>
+                    <label for="usuario_input">Usuário</label>
                     <input type="text" id="usuario_input" placeholder="Nome de usuário">
                 </div>
                 <div class="campos">
-                    <label for="senha">Senha</label>
+                    <label for="senha_input">Senha</label>
                     <input type="password" id="senha_input" placeholder="Crie uma senha">
                 </div>
                 <div class="campos">
-                    <label for="confirmar-senha">Confirmar senha</label>
+                    <label for="confirmar_senha_input">Confirmar senha</label>
                     <input type="password" id="confirmar_senha_input" placeholder="Repita sua senha">
                 </div>
-                <button class="botao" onclick="cadastrar(); redirecionarParalogin();">Cadastrar</button>
+                <button id="botao_cadastrar" class="botao" onclick="cadastrar()">Cadastrar</button>
             </div>
         </div>
     </div>
@@ -58,47 +58,81 @@
 
 <script>
 
-  // Array para armazenar empresas cadastradas para validação de código de ativação 
-  let listaEmpresasCadastradas = [];
-    function redirecionarParalogin() {
-            window.location.href = 'tela-login.html';
-        }
-  function cadastrar() {
-    // aguardar();
+function irParaLogin() {
+    window.location.href = 'tela-login.html';
+}
 
-    //Recupere o valor da nova input pelo nome do id
-    // Agora vá para o método fetch logo abaixo
-    var nomeVar = nome_input.value;
-    var emailVar = email_input.value;
+function cadastrar() {
+
+    var carregando = false;
+    var nomeVar = nome_input.value.trim();
+    var emailVar = email_input.value.trim();
+    var usuarioVar = usuario_input.value.trim();
     var senhaVar = senha_input.value;
     var confirmacaoSenhaVar = confirmar_senha_input.value;
-    var usuarioVar = usuario_input.value;
+    var botao = document.getElementById("botao_cadastrar");
 
-    // Verificando se há algum campo em branco
     if (
-      nomeVar == "" ||
-      emailVar == "" ||
-      usuarioVar == "" ||
-      senhaVar == "" ||
-      confirmacaoSenhaVar == "" 
-    );
+        nomeVar == "" ||
+        emailVar == "" ||
+        usuarioVar == "" ||
+        senhaVar == "" ||
+        confirmacaoSenhaVar == "") {
+        alert("Preencha todos os campos corretamente.");
+        return;}
+
+        if (nomeVar.length < 3) {
+        alert("O nome deve ter pelo menos 3 caracteres.");
+        return;}
+
+        if (!emailVar.includes("@") || !emailVar.includes(".")) {
+        alert("Digite um email válido.");
+        return}
+        if (usuarioVar.includes(" ")) {
+        alert("O usuário não pode conter espaços.");
+        return;}
+        if (senhaVar.length < 6) {
+        alert("A senha deve ter pelo menos 6 caracteres.");
+        return;}
+        if (senhaVar !== confirmacaoSenhaVar) {
+        alert("As senhas estão diferentes.");
+        return;}
 
 
+    carregando = true;
 
-    // Enviando o valor da nova input
     fetch("/usuarios/cadastrar", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        // crie um atributo que recebe o valor recuperado aqui
-        // Agora vá para o arquivo routes/usuario.js
-        nomeServer: usuarioVar,
-        emailServer: emailVar,
-        senhaServer: senhaVar
-      }),
-    });
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+            nomeServer: nomeVar,
+            emailServer: emailVar,
+            usuarioServer: usuarioVar,
+            senhaServer: senhaVar,
+        }),
+    })
+        .then(resposta => {
 
-  }
+            if (resposta.status === 409) {
+                alert("Usuário ou email já cadastrado.");
+                carregando = false;
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw "Erro no servidor";
+            }
+
+            return resposta.json();
+        })
+        .then(data => {
+            alert("Cadastro concluído!");
+            irParaLogin();
+        })
+        .catch(erro => {
+            console.log(erro);
+            alert("Não foi possível cadastrar.");
+           carregando = false;
+        });
+}
 </script>

@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz</title>
+<link rel="stylesheet" href="./css/quiz.css">
+</head>
+<body onload="onloadEsconder(); carregarQuiz();">
+
+<div id="pontuacaoEJogo">
+    <button id="btnIniciarQuiz" onclick="iniciarQuiz()">INICIAR QUIZ</button>
+
+    <div id="pontuacao" class="flex-colunar width-fit-content border-primary">
+        <div id="pontuacaoDuranteJogo" class="flex-colunar padding-8">
+            <span>Acertos: <span id="spanCertas">0</span></span>
+            <span>Erros: <span id="spanErradas">0</span></span>
+        </div>
+        <div id="pontuacaoFinalJogo" class="flex-colunar padding-8">
+            <span>Pontuação Final: <span id="spanPontuacaoFinal">0</span></span>
+            <span id="msgFinal">***</span>
+        </div>
+    </div>
+
+    <div id="jogo" class="width-fit-content flex-colunar border-secondary">
+        <div id="infoQuestao" class="padding-8">
+            Questão <span id="spanNumeroDaQuestaoAtual">0</span> de <span id="qtdQuestoes">0</span>
+        </div>
+
+        <div id="perguntaDaQuestaoAtual" class="padding-8">
+            <span id="spanQuestaoExibida" class="text-bold"></span>
+        </div>
+
+        <div id="opcoes" class="flex-colunar padding-8">
+            <span><input type="radio" id="opcao1" name="option" value="1"><label for="opcao1" id="labelOpcao1"></label></span>
+            <span><input type="radio" id="opcao2" name="option" value="2"><label for="opcao2" id="labelOpcao2"></label></span>
+            <span><input type="radio" id="opcao3" name="option" value="3"><label for="opcao3" id="labelOpcao3"></label></span>
+            <span><input type="radio" id="opcao4" name="option" value="4"><label for="opcao4" id="labelOpcao4"></label></span>
+        </div>
+
+        <div id="botoes" class="flex-colunar padding-8">
+            <button id="btnSubmeter" onclick="submeter()">Submeter resposta</button>
+            <button id="btnProx" onclick="avancar()" disabled>Próxima</button>
+            <button id="btnTentarNovamente" onclick="tentarNovamente()" disabled>Tentar novamente</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let listaDeQuestoes = [];
+let numeroDaQuestaoAtual = 0;
+let pontuacaoFinal = 0;
+let certas = 0;
+let erradas = 0;
+
+function onloadEsconder() {
+    document.getElementById('pontuacao').style.display = "none";
+    document.getElementById('jogo').style.display = "none";
+}
+
+async function carregarQuiz() {
+    const idUsuario = sessionStorage.ID_USUARIO; 
+    if (!idUsuario) {
+        alert("Usuário não logado!");
+        window.location = "tela-login.html";
+        return;
+    }
+
+    try {
+        const response = await fetch(`http://localhost:3000/quiz/${idUsuario}`);
+        if (response.status === 200) {
+            listaDeQuestoes = await response.json();
+            document.getElementById('qtdQuestoes').innerText = listaDeQuestoes.length;
+        } else {
+            alert("Nenhum quiz encontrado para o seu nível.");
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar quiz:", erro);
+    }
+}
+
+function iniciarQuiz() {
+    document.getElementById('pontuacao').style.display = "flex";
+    document.getElementById('jogo').style.display = "flex";
+    document.getElementById('btnIniciarQuiz').style.display = "none";
+    mostrarQuestao(numeroDaQuestaoAtual);
+    document.getElementById('btnSubmeter').disabled = false;
+    document.getElementById('btnProx').disabled = true;
+}
+
+function mostrarQuestao(index) {
+    const questao = listaDeQuestoes[index];
+    document.getElementById("spanNumeroDaQuestaoAtual").innerText = index + 1;
+    document.getElementById("spanQuestaoExibida").innerText = questao.enunciado;
+    document.getElementById("labelOpcao1").innerText = questao.alternativaA;
+    document.getElementById("labelOpcao2").innerText = questao.alternativaB;
+    document.getElementById("labelOpcao3").innerText = questao.alternativaC;
+    document.getElementById("labelOpcao4").innerText = questao.alternativaD;
+
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById(`opcao${i}`).checked = false;
+        document.getElementById(`labelOpcao${i}`).className = "";
+    }
+}
+
+function submeter() {
+    let selecionada = null;
+    for (let i = 1; i <= 4; i++) {
+        if (document.getElementById(`opcao${i}`).checked) {
+            selecionada = i;
+            break;
+        }
+    }
+
+    if (!selecionada) {
+        alert("Escolha uma opção!");
+        return;
+    }
+
+    document.getElementById('btnSubmeter').disabled = true;
+    document.getElementById('btnProx').disabled = false;
+
+    const questaoAtual = listaDeQuestoes[numeroDaQuestaoAtual];
+    const correta = questaoAtual.correta;
+
+    for (let i = 1; i <= 4; i++) {
+        if (i === correta) {
+      pontuacaoFinal++;
+    certas++;
+        }
+    }
+
+
+    document.getElementById('spanCertas').innerText = certas;
+    document.getElementById('spanErradas').innerText = erradas;
+
+    enviarRespostaAPI(questaoAtual.id_pergunta, selecionada, selecionada === correta);
+}
+
+function avancar() {
+    numeroDaQuestaoAtual++;
+    if (numeroDaQuestaoAtual < listaDeQuestoes.length) {
+        mostrarQuestao(numeroDaQuestaoAtual);
+        document.getElementById('btnSubmeter').disabled = false;
+        document.getElementById('btnProx').disabled = true;
+    } else {
+        finalizarJogo();
+    }
+}
+
+function tentarNovamente() {
+    window.location.reload();
+}
+
+function finalizarJogo() {
+    document.getElementById('spanPontuacaoFinal').innerText = pontuacaoFinal;
+    let msg = pontuacaoFinal / listaDeQuestoes.length >= 0.9 ? "Parabéns!" :
+              pontuacaoFinal / listaDeQuestoes.length >= 0.3 ? "Pode melhorar!" :
+              "Estude mais!";
+    document.getElementById('msgFinal').innerText = msg;
+
+    document.getElementById('btnSubmeter').disabled = true;
+    document.getElementById('btnProx').disabled = true;
+    document.getElementById('btnTentarNovamente').disabled = false;
+}
+
+async function enviarRespostaAPI(idPergunta, idAlternativa, correta) {
+    const idUsuario = sessionStorage.ID_USUARIO;
+    try {
+        await fetch('http://localhost:3000/quiz/resposta', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                idUsuario: idUsuario,
+                idPergunta: idPergunta,
+                alternativaEscolhida: idAlternativa,
+                correta: correta
+            })
+        });
+    } catch (erro) {
+        console.error("Erro ao enviar resposta:", erro);
+    }
+}
+</script>
