@@ -42,7 +42,34 @@ CREATE TABLE progresso_quiz (
     quiz_atual INT NOT NULL,
     status_progresso VARCHAR(20) DEFAULT 'pendente',
     tentativas INT DEFAULT 0,
-    data_conclusao TIMESTAMP NULL,
+    data_conclusao TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
     FOREIGN KEY (quiz_atual) REFERENCES quiz(id_quiz)
+);
+
+CREATE TABLE pergunta (
+    id_pergunta INT PRIMARY KEY AUTO_INCREMENT,
+    id_quiz INT NOT NULL,
+    enunciado VARCHAR(500) NOT NULL,
+    FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz)
+);
+
+CREATE TABLE alternativa (
+    id_alternativa INT PRIMARY KEY AUTO_INCREMENT,
+    id_pergunta INT NOT NULL,
+    texto VARCHAR(300) NOT NULL,
+    correta BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (id_pergunta) REFERENCES pergunta(id_pergunta)
+);
+
+CREATE TABLE resposta_usuario (
+    id_resposta INT PRIMARY KEY AUTO_INCREMENT,
+    id_usuario INT NOT NULL,
+    id_pergunta INT NOT NULL,
+    id_alternativa_escolhida INT NOT NULL,
+    correta BOOLEAN NOT NULL,
+    data_resposta TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+    FOREIGN KEY (id_pergunta) REFERENCES pergunta(id_pergunta),
+    FOREIGN KEY (id_alternativa_escolhida) REFERENCES alternativa(id_alternativa)
 );
