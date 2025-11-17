@@ -31,7 +31,7 @@ h1, h2, h3 {
     padding: 20px;
     border: 1px solid #2a2a2a;
     border-radius: 10px;
-    background: #1c1c1c;
+    background: #121212;
 }
 
 #enunciado {
@@ -64,7 +64,7 @@ button {
 }
 
 button:disabled {
-    background: #555;
+    background: #6E6E73;
     cursor: not-allowed;
 }
 

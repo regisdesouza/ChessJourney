@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel</title>
+    <link rel="stylesheet" href="./css/painel.css">
+</head>
+<body>
+
+<div class="container">
+
+    <div class="menuLateral">
+        <h2>Painel</h2>
+        <a href="./painel.html">Início</a>
+        <a href="./quiz.html">Quiz</a>
+        <a href="#">Gráfico</a>
+        <a href="#">Geral</a>
+    </div>
+
+    <div class="conteudo">
+
+        <div class="linhaInfos">
+            <div class="cardInfo">
+                <h3>Informações do Usuário</h3>
+                <p><b>Nome:</b> <span id="nomeUser"></span></p>
+            </div>
+
+            <div class="cardInfo">
+                <h3>Quiz Atual</h3>
+                <p><span id="quizAtual"></span></p>
+            </div>
+
+            <div class="cardInfo">
+                <h3>Próximo Quiz</h3>
+                <p><span id="proximoQuiz"></span></p>
+            </div>
+        </div>
+
+        <div class="recomendacoes">
+            <h3>Recomendações</h3>
+            <div id="textoRecomendacao"></div>
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+const idUsuario = sessionStorage.ID_USUARIO;
+
+if (!idUsuario) {
+    window.location.href = "tela-login.html";
+}
+
+function carregarPainel() {
+    fetch("/painel/" + idUsuario)
+        .then(res => res.json())
+        .then(dados => {
+            document.getElementById("nomeUser").innerText = dados.usuario.nome;
+
+            if (dados.quizAtual) {
+                document.getElementById("quizAtual").innerText = dados.quizAtual.titulo;
+                carregarRecomendacoes(dados.quizAtual.id_quiz);
+            } else {
+                document.getElementById("quizAtual").innerText = "Nenhum quiz em andamento";
+                document.getElementById("textoRecomendacao").innerHTML = "<p>Faça seu primeiro quiz para receber recomendações!</p>";
+            }
+
+            if (dados.proximoQuiz) {
+                document.getElementById("proximoQuiz").innerText = dados.proximoQuiz.titulo;
+            } else {
+                document.getElementById("proximoQuiz").innerText = "Nenhum próximo quiz";
+            }
+        })
+        .catch(erro => {
+            console.log("Erro ao carregar painel:", erro);
+        });
+}
+
+function carregarRecomendacoes(idQuiz) {
+    fetch("/painel/recomendacao/quiz/" + idQuiz)
+        .then(res => res.json())
+        .then(lista => {
+            if (!lista || lista.length === 0) {
+                document.getElementById("textoRecomendacao").innerHTML = "<p>Não há recomendações para este quiz.</p>";
+                return;
+            }
+
+            let html = "";
+            lista.forEach(rec => {
+                html += "<div class='rec'>";
+                html += "<h4>" + rec.titulo + "</h4>";
+                html += "<p>" + rec.descricao + "</p>";
+                html += "<p>" + rec.conteudo + "</p>";
+                if (rec.url_recurso) {
+                    html += "<p><a href='" + rec.url_recurso + "' target='_blank'>Acessar recurso</a></p>";
+                }
+                html += "</div>";
+            });
+
+            document.getElementById("textoRecomendacao").innerHTML = html;
+        })
+        .catch(erro => {
+            console.log("Erro ao carregar recomendações:", erro);
+            document.getElementById("textoRecomendacao").innerHTML = "<p>Erro ao carregar recomendações.</p>";
+        });
+}
+
+carregarPainel();
+
+</script>
+
+</body>
+</html>

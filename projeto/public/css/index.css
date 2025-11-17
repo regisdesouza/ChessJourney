@@ -18,9 +18,8 @@ html, body {
   background: #121212;
     border-bottom: 1px solid #2a2a2a;
     padding: 20px 0;
-    position: sticky;
+    position: relative;
     top: 0;
-    z-index: 100;
 }
 
 .header .container {
@@ -79,7 +78,7 @@ html, body {
 }
 
 .hero-texto p {
-    color: #ccc;
+    color: #6E6E73;
     font-size: 1.1rem;
     margin-bottom: 30px;
     line-height: 1.5;
@@ -146,7 +145,7 @@ html, body {
 }
 
 .card p {
-    color: #ccc;
+    color: #6E6E73;
     font-size: 0.95rem;
     line-height: 1.4; 
 }
