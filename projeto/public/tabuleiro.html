@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chessjourney</title>
+    <link rel="stylesheet" href="./css/tabuleiro.css">
+</head>
+<body onload="criarTabuleiro()">
+    
+    
+    <div id="divContainer">
+
+        <div id="tabuleiro">
+
+
+        </div>
+
+
+    </div>
+</body>
+<script>
+
+var vezJogar = "branco";  
+var pecaSelecionada = null;
+var movimentosPecas = [];
+
+var tabuleiroPos = 
+[
+    ['a8','b8','c8','d8','e8','f8','g8','h8'],
+    ['a7','b7','c7','d7','e7','f7','g7','h7'],
+    ['a6','b6','c6','d6','e6','f6','g6','h6'],
+    ['a5','b5','c5','d5','e5','f5','g5','h5'],
+    ['a4','b4','c4','d4','e4','f4','g4','h4'],
+    ['a3','b3','c3','d3','e3','f3','g3','h3'],
+    ['a2','b2','c2','d2','e2','f2','g2','h2'],
+    ['a1','b1','c1','d1','e1','f1','g1','h1']
+];
+
+var imagensXadrez = {
+
+    'a1': './assets/torre-branca.svg',
+    'b1': './assets/cavalo-branco.svg',
+    'c1': './assets/bispo-branco.svg',
+    'd1': './assets/dama-branca.svg',
+    'e1': './assets/rei-branca.svg',
+    'f1': './assets/bispo-branco.svg',
+    'g1': './assets/cavalo-branco.svg',
+    'h1': './assets/torre-branca.svg',
+
+    'a2': './assets/peao-branco.svg',
+    'b2': './assets/peao-branco.svg',
+    'c2': './assets/peao-branco.svg',
+    'd2': './assets/peao-branco.svg',
+    'e2': './assets/peao-branco.svg',
+    'f2': './assets/peao-branco.svg',
+    'g2': './assets/peao-branco.svg',
+    'h2': './assets/peao-branco.svg',
+    
+    'a8': './assets/torre-preto.svg',
+    'b8': './assets/cavalo-preto.svg',
+    'c8': './assets/bispo-preto.svg',
+    'd8': './assets/dama-preto.svg',
+    'e8': './assets/rei-preto.svg',
+    'f8': './assets/bispo-preto.svg',
+    'g8': './assets/cavalo-preto.svg',
+    'h8': './assets/torre-preto.svg',
+    
+    'a7': './assets/peao-preto.svg',
+    'b7': './assets/peao-preto.svg',
+    'c7': './assets/peao-preto.svg',
+    'd7': './assets/peao-preto.svg',
+    'e7': './assets/peao-preto.svg',
+    'f7': './assets/peao-preto.svg',
+    'g7': './assets/peao-preto.svg',
+    'h7': './assets/peao-preto.svg'
+};
+
+
+function criarTabuleiro() {
+    var tabuleiro = document.getElementById('tabuleiro');
+    tabuleiro.innerHTML = '';
+
+    for (let linha = 0; linha < 8; linha++) {
+        for (let coluna = 0; coluna < 8; coluna++) {
+
+            let nomeCasa = tabuleiroPos[linha][coluna];
+
+            let casa = document.createElement('div');
+            casa.className = `casa ${(linha + coluna) % 2 === 0 ? 'branco' : 'verde'}`;
+            casa.id = nomeCasa;
+
+            if (imagensXadrez[nomeCasa]) {
+                let img = document.createElement('img');
+                img.src = imagensXadrez[nomeCasa];
+                img.className = 'peca';
+                casa.appendChild(img);
+            }
+
+            tabuleiro.appendChild(casa);
+        }
+    }
+}
+
+
+
+</script>
+</html>

@@ -50,11 +50,6 @@ html, body {
     transition: color 0.3s;
 }
 
-.navbar li a:hover,
-.navbar li.ativo a {
-    color: #EFBF04;
-}
-
 
 .hero {
     display: flex;
