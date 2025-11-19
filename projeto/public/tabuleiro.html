@@ -22,7 +22,7 @@
 <script>
 
 var vezJogar = "branco";  
-var pecaSelecionada = null;
+var casaSelecionada = null;
 var movimentosPecas = [];
 
 var tabuleiroPos = 
@@ -81,26 +81,85 @@ function criarTabuleiro() {
     var tabuleiro = document.getElementById('tabuleiro');
     tabuleiro.innerHTML = '';
 
-    for (let linha = 0; linha < 8; linha++) {
-        for (let coluna = 0; coluna < 8; coluna++) {
-
-            let nomeCasa = tabuleiroPos[linha][coluna];
-
-            let casa = document.createElement('div');
+    for (var linha = 0; linha < 8; linha++) {
+        for (var coluna = 0; coluna < 8; coluna++) {
+            var nomeCasa = tabuleiroPos[linha][coluna];
+            var casa = document.createElement('div');
             casa.className = `casa ${(linha + coluna) % 2 === 0 ? 'branco' : 'verde'}`;
             casa.id = nomeCasa;
+            casa.setAttribute("onclick", "cliqueCasa('" + nomeCasa + "')");
 
             if (imagensXadrez[nomeCasa]) {
-                let img = document.createElement('img');
+                var img = document.createElement('img');
                 img.src = imagensXadrez[nomeCasa];
-                img.className = 'peca';
+
+                img.className = 'peca ' +(imagensXadrez[nomeCasa].includes('branco') ? 'branca' : 'preto');
+                img.setAttribute("onclick", "cliqueCasa('" + nomeCasa + "')");
                 casa.appendChild(img);
+                casa.peca = img;
+                img.style.pointerEvents = "none";
+            } else {
+                casa.peca = null;
             }
 
             tabuleiro.appendChild(casa);
         }
     }
 }
+
+
+
+function cliqueCasa(id) {
+    var casa = document.getElementById(id);
+
+    if (!casaSelecionada) {
+        tentarSelecionarPeca(id);
+        return;
+    }
+
+    var casaSel = document.getElementById(casaSelecionada);
+
+    if (casa === casaSel) { 
+        casaSelecionada = null;
+        return;
+    }
+
+    if (casa.peca && suaPeca(casa.id)) {
+        tentarSelecionarPeca(casa.id);
+        return;
+    }
+    if (movimentosPecas.includes(id)) {
+        casaSelecionada = null;
+        movimentosPecas = [];
+    }
+}
+
+
+function suaPeca(id) {
+    var casa = document.getElementById(id);
+    if (!casa || !casa.peca) return false;
+    return (vezJogar === "branco" && casa.peca.className.includes("branca")) ||(vezJogar === "preto" && casa.peca.className.includes("preto"));
+}
+
+function tentarSelecionarPeca(id) {
+    var casa = document.getElementById(id);
+    if (!casa || !casa.peca) return; 
+    if (!suaPeca(id)) return;
+    casaSelecionada = id;
+}
+
+
+
+function estaVazia(id) {
+    var casa = document.getElementById(id);
+    return (!casa || !casa.peca);
+}
+
+
+
+
+
+
 
 
 
