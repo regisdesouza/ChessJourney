@@ -54,9 +54,28 @@ var erros = 0;
 
 function mostrarUsuario() {
     var usuario = sessionStorage.NOME_USUARIO;
-    if (usuario) {
-        tituloQuiz.innerHTML = "Olá, " + usuario + "! Bem-vindo ao Quiz";
+    if (usuario) tituloQuiz.innerHTML = "Olá, " + usuario + "! Bem-vindo ao Quiz";
+}
+
+function inteiroAleatorio(num) {
+    return num - (num % 1);
+}
+
+function embaralhar(array) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = inteiroAleatorio(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
     }
+}
+
+function limitarPerguntas(array, limite) {
+    var resultado = [];
+    for (var i = 0; i < limite && i < array.length; i++) {
+        resultado.push(array[i]);
+    }
+    return resultado;
 }
 
 function iniciarQuiz() {
@@ -65,13 +84,14 @@ function iniciarQuiz() {
         .then(r => r.json())
         .then(d => {
             quiz = d;
+            embaralhar(quiz.perguntas);
+            quiz.perguntas = limitarPerguntas(quiz.perguntas, 5);
             tituloQuiz.innerHTML = quiz.titulo;
             divQuiz.style.display = "block";
             btnIniciar.style.display = "none";
             index = 0;
             acertos = 0;
             erros = 0;
-            sessionStorage.NIVEL = quiz.nivel || 1;
             mostrarQuestao();
         });
 }
@@ -81,7 +101,6 @@ function limparRadios() {
     alt2.checked = false;
     alt3.checked = false;
     alt4.checked = false;
-
     alt1.disabled = false;
     alt2.disabled = false;
     alt3.disabled = false;
@@ -97,7 +116,6 @@ function desabilitarRadios() {
 
 function mostrarQuestao() {
     var q = quiz.perguntas[index];
-
     enunciado.innerHTML = "Questão " + (index + 1) + " de " + quiz.perguntas.length + " — " + q.enunciado;
 
     lbl1.innerHTML = q.alternativas[0].texto;
@@ -111,10 +129,8 @@ function mostrarQuestao() {
     alt4.value = q.alternativas[3].id_alternativa;
 
     limparRadios();
-
     btnSubmeter.disabled = false;
     btnProxima.disabled = true;
-
     status.innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
 }
 
@@ -128,24 +144,16 @@ function obterMarcada() {
 
 function submeter() {
     var marcada = obterMarcada();
-    if (!marcada) {
-        alert("Escolha uma alternativa.");
-        return;
-    }
+    if (!marcada) { alert("Escolha uma alternativa."); return; }
 
-    var idAlternativa = Number(marcada.value);
+    var idAlternativa = marcada.value;
     var q = quiz.perguntas[index];
-
     var correta = null;
     for (var i = 0; i < q.alternativas.length; i++) {
-        if (q.alternativas[i].correta == 1) {
-            correta = q.alternativas[i].id_alternativa;
-            break;
-        }
+        if (q.alternativas[i].correta == 1) { correta = q.alternativas[i].id_alternativa; break; }
     }
 
     if (idAlternativa == correta) acertos++; else erros++;
-
     status.innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
 
     desabilitarRadios();
@@ -166,40 +174,25 @@ function submeter() {
 
 function proxima() {
     index++;
-    if (index >= quiz.perguntas.length) {
-        finalizarQuiz();
-        return;
-    }
-    mostrarQuestao();
+    if (index >= quiz.perguntas.length) finalizarQuiz(); else mostrarQuestao();
 }
 
 function finalizarQuiz() {
     divQuiz.style.display = "none";
     divFinal.style.display = "block";
-
     resultadoFinal.innerHTML = "Você acertou " + acertos + " de " + quiz.perguntas.length;
 
-    var totalPerguntas = quiz.perguntas.length;
-    var minimoAcertos = totalPerguntas * 7 / 10;
-
-     if (acertos * 10 >= totalPerguntas * 7) {
-        var novoNivel = quiz.numero_quiz + 1;
-
-        fetch("/quiz/atualizar-nivel", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                idUsuario: sessionStorage.ID_USUARIO,
-                novoNivel: novoNivel
-            })
-        })
-        .then(() => {
-            sessionStorage.NIVEL = novoNivel;
-            alert("Parabéns! Você desbloqueou o próximo nível!");
-        });
-    } else {
-        alert("Você não atingiu o mínimo de acertos para desbloquear o próximo nível.");
-    }
+    fetch("/quiz/finalizar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idUsuario: sessionStorage.ID_USUARIO })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.quizConcluido) alert("Parabéns! Você desbloqueou o próximo quiz (nível " + data.novoNivel + ")!");
+        else alert("Você não atingiu o mínimo de acertos para desbloquear o próximo quiz.");
+    })
+    .catch(erro => console.log("Erro ao finalizar quiz:", erro));
 }
 </script>
 
