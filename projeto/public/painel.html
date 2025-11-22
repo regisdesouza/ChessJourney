@@ -12,7 +12,6 @@
     <div class="menuLateral">
         <h2>Painel</h2>
         <a href="./painel.html">Início</a>
-        <a href="./quiz.html">Quiz</a>
         <a href="./dashboard/dash-usuario.html">Estatísticas</a>
         <a href="./dashboard/dash-geral.html">Geral</a>
     </div>
@@ -41,6 +40,9 @@
             <div id="textoRecomendacao"></div>
         </div>
 
+        <h3 style="margin-top: 30px;">Quizzes Disponíveis</h3>
+        <div id="listaQuizzes"></div>
+
     </div>
 
 </div>
@@ -52,25 +54,40 @@ if (!idUsuario) {
     window.location.href = "tela-login.html";
 }
 
+var nivelAtual = 1;  // será atualizado ao carregarPainel()
+
 function carregarPainel() {
     fetch("/painel/" + idUsuario)
         .then(res => res.json())
         .then(dados => {
-            document.getElementById("nomeUser").innerText = dados.usuario.nome;
 
-            if (dados.quizAtual) {
-                document.getElementById("quizAtual").innerText = dados.quizAtual.titulo;
-                carregarRecomendacoes(dados.quizAtual.id_quiz);
+            console.log("DADOS DO PAINEL:", dados);
+
+            const usuario = dados.usuario?.[0];
+            const quizAtual = dados.quizAtual?.[0];
+            const proximoQuiz = dados.proximoQuiz?.[0];
+
+            document.getElementById("nomeUser").innerText = usuario?.nome || "Sem nome";
+
+            if (quizAtual) {
+                document.getElementById("quizAtual").innerText = quizAtual.titulo;
+                nivelAtual = quizAtual.id_quiz;
+
+                carregarRecomendacoes(quizAtual.id_quiz);
             } else {
                 document.getElementById("quizAtual").innerText = "Nenhum quiz em andamento";
-                document.getElementById("textoRecomendacao").innerHTML = "<p>Faça seu primeiro quiz para receber recomendações!</p>";
+                document.getElementById("textoRecomendacao").innerHTML =
+                    "<p>Faça seu primeiro quiz para receber recomendações!</p>";
+                nivelAtual = 1;
             }
 
-            if (dados.proximoQuiz) {
-                document.getElementById("proximoQuiz").innerText = dados.proximoQuiz.titulo;
+            if (proximoQuiz) {
+                document.getElementById("proximoQuiz").innerText = proximoQuiz.titulo;
             } else {
                 document.getElementById("proximoQuiz").innerText = "Nenhum próximo quiz";
             }
+
+            montarListaQuizzes(nivelAtual);
         })
         .catch(erro => {
             console.log("Erro ao carregar painel:", erro);
@@ -81,8 +98,18 @@ function carregarRecomendacoes(idQuiz) {
     fetch("/painel/recomendacao/quiz/" + idQuiz)
         .then(res => res.json())
         .then(lista => {
-            if (!lista || lista.length === 0) {
-                document.getElementById("textoRecomendacao").innerHTML = "<p>Não há recomendações para este quiz.</p>";
+
+            console.log("RESPOSTA RECOMENDACOES:", lista);
+
+            if (!Array.isArray(lista)) {
+                document.getElementById("textoRecomendacao").innerHTML =
+                    "<p>Retorno inválido da API.</p>";
+                return;
+            }
+
+            if (lista.length === 0) {
+                document.getElementById("textoRecomendacao").innerHTML =
+                    "<p>Não há recomendações para este quiz.</p>";
                 return;
             }
 
@@ -93,7 +120,8 @@ function carregarRecomendacoes(idQuiz) {
                 html += "<p>" + rec.descricao + "</p>";
                 html += "<p>" + rec.conteudo + "</p>";
                 if (rec.url_recurso) {
-                    html += "<p><a href='" + rec.url_recurso + "' target='_blank'>Acessar recurso</a></p>";
+                    html += "<p><a href='" + rec.url_recurso +
+                            "' target='_blank'>Acessar recurso</a></p>";
                 }
                 html += "</div>";
             });
@@ -102,12 +130,50 @@ function carregarRecomendacoes(idQuiz) {
         })
         .catch(erro => {
             console.log("Erro ao carregar recomendações:", erro);
-            document.getElementById("textoRecomendacao").innerHTML = "<p>Erro ao carregar recomendações.</p>";
+            document.getElementById("textoRecomendacao").innerHTML =
+                "<p>Erro ao carregar recomendações.</p>";
         });
 }
 
-carregarPainel();
+function montarListaQuizzes(nivel) {
+    var area = document.getElementById("listaQuizzes");
+    area.innerHTML = "";
 
+    var total = 4;
+    var n = 1;
+
+    while (n <= total) {
+        var caixa = document.createElement("div");
+        caixa.className = "quizBox";
+
+        var txt = document.createElement("p");
+        txt.innerHTML = "Quiz " + n;
+
+        var btn = document.createElement("button");
+
+        if (n <= nivel) {
+            btn.innerHTML = "Acessar";
+            btn.onclick = (function(num){
+                return function(){
+                    sessionStorage.setItem("QUIZ_ATUAL", num);
+                    window.location.href = "./quiz.html";
+                }
+            })(n);
+        } else {
+            btn.innerHTML = "Bloqueado";
+            btn.disabled = true;
+            btn.className = "bloqueado";
+        }
+
+        caixa.appendChild(txt);
+        caixa.appendChild(btn);
+        area.appendChild(caixa);
+
+        n++;
+    }
+}
+
+carregarPainel();
 </script>
 
 </body>

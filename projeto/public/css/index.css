@@ -47,7 +47,6 @@ html, body {
     color: white;
     text-decoration: none;
     font-weight: 600;
-    transition: color 0.3s;
 }
 
 
@@ -103,9 +102,6 @@ html, body {
     cursor: pointer;
 }
 
-.botao:hover {
-    background: #c99c02;
-}
 
 .beneficios {
     text-align: center;

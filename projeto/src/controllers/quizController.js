@@ -1,87 +1,160 @@
 var quizModel = require("../models/quizModel");
 var database = require("../database/config");
 
-async function obterQuiz(req, res) {
-    try {
-        const idUsuario = req.params.idUsuario;
+function obterQuiz(req, res) {
+    var idUsuario = req.params.idUsuario;
 
-        const resultadoNivel = await database.executar(
-            `SELECT nivel_atual FROM usuario WHERE id_usuario = ${idUsuario};`
-        );
+    database.executar(
+        `SELECT nivel_atual FROM usuario WHERE id_usuario = ${idUsuario};`
+    )
+    .then(function (resultadoNivel) {
 
         if (resultadoNivel.length === 0) {
             res.status(404).send("Usuário não encontrado");
             return;
         }
 
-        const nivelAtual = resultadoNivel[0].nivel_atual;
-        const linhas = await quizModel.buscarQuestoesPorNivel(nivelAtual);
+        var nivelAtual = resultadoNivel[0].nivel_atual;
 
-        if (linhas.length === 0) {
-            res.status(204).send("Nenhum quiz encontrado para este nível");
-            return;
-        }
+        quizModel.buscarQuestoesPorNivel(nivelAtual)
+        .then(function (linhas) {
 
-        const quizMontado = {
-            titulo: linhas[0].titulo,
-            perguntas: []
-        };
-
-        const mapaPerguntas = {};
-
-        for (let linha of linhas) {
-            if (!mapaPerguntas[linha.id_pergunta]) {
-                mapaPerguntas[linha.id_pergunta] = {
-                    id_pergunta: linha.id_pergunta,
-                    enunciado: linha.enunciado,
-                    alternativas: []
-                };
+            if (linhas.length === 0) {
+                res.status(204).send("Nenhum quiz encontrado para este nível");
+                return;
             }
 
-            mapaPerguntas[linha.id_pergunta].alternativas.push({
-                id_alternativa: linha.id_alternativa,
-                texto: linha.texto_alternativa,
-                correta: linha.correta ? 1 : 0
-            });
-        }
+            var quizMontado = {
+                titulo: linhas[0].titulo,
+                perguntas: []
+            };
 
-        quizMontado.perguntas = Object.values(mapaPerguntas);
+            var mapaPerguntas = {};
 
-        res.status(200).json(quizMontado);
+            for (var i = 0; i < linhas.length; i++) {
+                var linha = linhas[i];
 
-    } catch (erro) {
+                if (!mapaPerguntas[linha.id_pergunta]) {
+                    mapaPerguntas[linha.id_pergunta] = {
+                        id_pergunta: linha.id_pergunta,
+                        enunciado: linha.enunciado,
+                        alternativas: []
+                    };
+                }
+
+                mapaPerguntas[linha.id_pergunta].alternativas.push({
+                    id_alternativa: linha.id_alternativa,
+                    texto: linha.texto_alternativa,
+                    correta: linha.correta ? 1 : 0
+                });
+            }
+
+            var arrPerguntas = [];
+            for (var chave in mapaPerguntas) {
+                arrPerguntas.push(mapaPerguntas[chave]);
+            }
+
+            quizMontado.perguntas = arrPerguntas;
+
+            res.status(200).json(quizMontado);
+
+        })
+        .catch(function (erro) {
+            console.log(erro);
+            res.status(500).json(erro.sqlMessage);
+        });
+
+    })
+    .catch(function (erro) {
         console.log(erro);
         res.status(500).json(erro.sqlMessage);
-    }
+    });
 }
 
-async function enviarResposta(req, res) {
-    try {
-        let { idUsuario, idPergunta, idAlternativaEscolhida, correta } = req.body;
 
-        if (!idUsuario || !idPergunta || !idAlternativaEscolhida || correta === undefined) {
-            res.status(400).send("Parâmetros inválidos");
-            return;
-        }
+function enviarResposta(req, res) {
+    var idUsuario = req.body.idUsuario;
+    var idPergunta = req.body.idPergunta;
+    var idAlternativaEscolhida = req.body.idAlternativaEscolhida;
+    var correta = req.body.correta;
 
-        correta = correta ? 1 : 0;
+    if (!idUsuario || !idPergunta || !idAlternativaEscolhida || correta === undefined) {
+        res.status(400).send("Parâmetros errados");
+        return;
+    }
 
-        const instrucaoSql = `
-            INSERT INTO resposta_usuario 
-            (id_usuario, id_pergunta, id_alternativa_escolhida, correta)
-            VALUES (${idUsuario}, ${idPergunta}, ${idAlternativaEscolhida}, ${correta});
-        `;
+    correta = correta ? 1 : 0;
 
-        const resultado = await database.executar(instrucaoSql);
-        res.status(201).json(resultado);
+    var instrucaoSql = `
+        INSERT INTO resposta_usuario
+        (id_usuario, id_pergunta, id_alternativa_escolhida, correta)
+        VALUES (${idUsuario}, ${idPergunta}, ${idAlternativaEscolhida}, ${correta});
+    `;
 
-    } catch (erro) {
+ database.executar(instrucaoSql)
+        .then(() => {
+            return database.executar(`SELECT id_quiz FROM pergunta WHERE id_pergunta = ${idPergunta};`);
+        })
+        .then(resultadoQuiz => {
+            const idQuiz = resultadoQuiz[0].id_quiz;
+            return database.executar(`SELECT COUNT(*) AS total FROM pergunta WHERE id_quiz = ${idQuiz};`)
+                .then(totalRes => {
+                    return { idQuiz, totalPerguntas: totalRes[0].total };
+                });
+        })
+        .then(({ idQuiz, totalPerguntas }) => {
+            return database.executar(`
+                SELECT COUNT(*) AS respondidas
+                FROM resposta_usuario ru
+                JOIN pergunta p ON p.id_pergunta = ru.id_pergunta
+                WHERE ru.id_usuario = ${idUsuario} AND p.id_quiz = ${idQuiz};
+            `)
+            .then(respondidasRes => {
+                return { idQuiz, totalPerguntas, respondidas: respondidasRes[0].respondidas };
+            });
+        })
+        .then(({ idQuiz, totalPerguntas, respondidas }) => {
+            if (respondidas >= totalPerguntas) {
+                return database.executar(`
+                    UPDATE progresso_quiz
+                    SET status_progresso = 'concluido'
+                    WHERE id_usuario = ${idUsuario} AND quiz_atual = ${idQuiz};
+                `);
+            }
+        })
+        .then(() => {
+            res.status(201).send({ message: "Resposta salva com sucesso!" });
+        })
+        .catch(erro => {
+            console.log(erro);
+            res.status(500).json(erro.sqlMessage);
+        });
+}
+function atualizarNivel(req, res) {
+    var idUsuario = req.body.idUsuario;
+    var novoNivel = req.body.novoNivel;
+
+    if (!idUsuario || !novoNivel) {
+        res.status(400).send("Parâmetros inválidos");
+        return;
+    }
+
+    database.executar(`
+        UPDATE usuario 
+        SET nivel_atual = ${novoNivel}
+        WHERE id_usuario = ${idUsuario};
+    `)
+    .then(() => {
+        res.status(200).send("Nível atualizado com sucesso!");
+    })
+    .catch(erro => {
         console.log(erro);
         res.status(500).json(erro.sqlMessage);
-    }
+    });
 }
 
 module.exports = {
     obterQuiz,
-    enviarResposta
+    enviarResposta,
+    atualizarNivel
 };

@@ -12,4 +12,10 @@ router.post("/resposta", function (req, res) {
     quizController.enviarResposta(req, res);
 });
 
+router.post("/atualizar-nivel", function (req, res) {
+    quizController.atualizarNivel(req, res);
+});
+
+
+
 module.exports = router;

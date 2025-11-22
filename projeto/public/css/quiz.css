@@ -6,14 +6,55 @@
     box-sizing: border-box;
 }
 
+html, body {
+    height: 100%;
+}
 body {
     background: #121212;
     font-family: 'Noto Sans', sans-serif;
     color: white;
-    padding: 20px;
+    display: flex;
 }
 
-h1, h2, h3 {
+.menuLateral {
+    background: #1c1c1c;
+    border-right: 1px solid #2a2a2a;
+    padding: 20px;
+    width: 220px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.menuLateral h2 {
+    color: #EFBF04;
+    margin-bottom: 20px;
+    font-size: 1.5rem;
+}
+
+.menuLateral a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+main {
+    flex: 1;
+    padding: 20px 40px;
+}
+
+#imagemQuiz {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+#imagemQuiz img {
+    max-width: 300px;
+    border-radius: 10px;
+    border: 2px solid #EFBF04;
+}
+
+h1, h2, h3, p {
     margin-bottom: 15px;
 }
 
@@ -22,7 +63,12 @@ h1, h2, h3 {
     color: #EFBF04;
     font-weight: 700;
     font-size: 2rem;
-    margin-bottom: 20px;
+    margin-bottom: 10px;
+}
+
+#mensagemInicial {
+    text-align: center;
+    margin-bottom: 25px;
 }
 
 #divQuiz {
@@ -63,10 +109,6 @@ button {
     cursor: pointer;
 }
 
-button:disabled {
-    background: #6E6E73;
-    cursor: not-allowed;
-}
 
 #status {
     margin-top: 15px;

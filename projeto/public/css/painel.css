@@ -122,6 +122,45 @@ body {
     font-weight: 600;
 }
 
-.rec a:hover {
-    text-decoration: underline;
+#listaQuizzes {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.quizBox {
+    background: #1c1c1c;
+    border: 1px solid #2a2a2a;
+    border-radius: 10px;
+    padding: 20px;
+    width: 180px;
+    text-align: center;
+}
+
+.quizBox p {
+    color: white;
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+}
+
+
+.quizBox button {
+    width: 100%;
+    padding: 10px 0;
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    cursor: pointer;
+    background: #EFBF04;
+    color: #121212;
+}
+
+
+
+.quizBox .bloqueado {
+    background: #444;
+    color: #999;
+    cursor: default;
 }

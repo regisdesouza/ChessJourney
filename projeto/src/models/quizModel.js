@@ -1,6 +1,6 @@
 var database = require("../database/config");
 
-async function buscarQuestoesPorNivel(nivel) {
+function buscarQuestoesPorNivel(nivel) {
     var instrucaoSql = `
         SELECT 
             q.titulo,
@@ -15,7 +15,7 @@ async function buscarQuestoesPorNivel(nivel) {
         WHERE q.numero_quiz = ${nivel}
         ORDER BY p.id_pergunta, a.id_alternativa;
     `;
-    return await database.executar(instrucaoSql);
+    return database.executar(instrucaoSql);
 }
 
 module.exports = {

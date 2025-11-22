@@ -1,20 +1,8 @@
-const express = require("express");
-const router = express.Router();
-const painelController = require("../controllers/painelController");
+var express = require("express");
+var router = express.Router();
+var painelController = require("../controllers/painelController");
 
 router.get("/:id", painelController.getPainel);
-
-router.get("/recomendacao/quiz/:id", async (req, res) => {
-    const idQuiz = req.params.id;
-    const painelModel = require("../models/painelModel");
-
-    try {
-        const resultado = await painelModel.buscarRecomendacoes(idQuiz);
-        res.json(resultado);
-    } catch (erro) {
-        console.log("Erro ao carregar recomendações", erro);
-        res.status(500).json({ erro: "Erro ao carregar recomendações" });
-    }
-});
+router.get("/recomendacao/quiz/:id", painelController.getRecomendacoes);
 
 module.exports = router;
