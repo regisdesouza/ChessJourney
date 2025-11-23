@@ -92,12 +92,12 @@ function obterDadosGrafico() {
                     let tentativas = Number(dados.tentativas);
                     let acertos = Number(dados.acertos);
 
-                    // Calcula taxa de acertos
+
                     let taxaAcertos = tentativas > 0 ? ((acertos / tentativas) * 100).toFixed(1) : 0;
                     document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
 
-                    // Por enquanto, quizzes restantes simulamos ou usamos dado do backend
-                    let quizzesRestantes = Number(dados.quizzesRestantes || 5); // Exemplo
+   
+                    let quizzesRestantes = Number(dados.quizzesRestantes || 5); 
                     document.getElementById("kpiQuizzesRestantes").innerText = quizzesRestantes;
 
                     let resposta = [{ tentativas, acertos }];
@@ -132,7 +132,7 @@ function plotarGrafico(resposta) {
     };
 
     let ctx = document.getElementById("myChartCanvasQuiz");
-    if (window.myChart) window.myChart.destroy(); // destrói gráfico antigo
+    if (window.myChart) window.myChart.destroy(); 
     window.myChart = new Chart(ctx, config);
 
     proximaAtualizacao = setTimeout(() => atualizarGrafico(dados, window.myChart), 2000);
@@ -148,11 +148,10 @@ function atualizarGrafico(dados, myChart) {
                     let tentativas = Number(novo.tentativas);
                     let acertos = Number(novo.acertos);
 
-                    // Atualiza taxa de acertos
+             
                     let taxaAcertos = tentativas > 0 ? ((acertos / tentativas) * 100).toFixed(1) : 0;
                     document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
 
-                    // Atualiza gráfico
                     dados.datasets[0].data[0] = tentativas;
                     dados.datasets[0].data[1] = acertos;
                     myChart.update();

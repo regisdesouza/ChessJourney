@@ -22,6 +22,7 @@ var usuarioRouter = require("./src/routes/usuarios");
 var quizRouter = require("./src/routes/quiz");
 var painelRoutes = require("./src/routes/painel");
 
+
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

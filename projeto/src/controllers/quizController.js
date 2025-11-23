@@ -1,97 +1,57 @@
-var quizModel = require("../models/quizModel");
-var database = require("../database/config");
-
-function obterQuiz(req, res) {
-    var idUsuario = req.params.idUsuario;
-    var idQuiz = req.query.idQuiz;
-
-    if (!idQuiz) {
-        return res.status(400).json({ erro: "Parâmetro idQuiz é obrigatório" });
-    }
-
-    montarQuiz(idQuiz, res);
-}
-
-function montarQuiz(idQuiz, res) {
-    quizModel.buscarQuestoesPorIdQuiz(idQuiz)
-        .then(function(linhas) {
-            if (!linhas || linhas.length === 0) {
-                return res.status(404).json({ erro: "Nenhum quiz encontrado" });
-            }
-
-            var quizMontado = {
-                titulo: linhas[0].titulo || "Título não disponível",
-                perguntas: []
-            };
-
-            var mapaPerguntas = [];
-
-            linhas.forEach(linha => {
-                if (!linha.id_pergunta) return;
-                var existente = mapaPerguntas.find(p => p.id_pergunta == linha.id_pergunta);
-                if (!existente) {
-                    existente = {
-                        id_pergunta: linha.id_pergunta,
-                        enunciado: linha.enunciado || "",
-                        alternativas: []
-                    };
-                    mapaPerguntas.push(existente);
-                }
-                existente.alternativas.push({
-                    id_alternativa: linha.id_alternativa,
-                    texto: linha.texto_alternativa || "",
-                    correta: linha.correta ? 1 : 0
-                });
-            });
-
-            quizMontado.perguntas = mapaPerguntas;
-            res.status(200).json(quizMontado);
-        })
-        .catch(erro => {
-            console.log(erro);
-            res.status(500).json({ erro: "Erro ao montar quiz" });
-        });
-}
-
-function enviarResposta(req, res) {
-    var { idUsuario, idPergunta, idAlternativaEscolhida, correta } = req.body;
-
-    if (!idUsuario || !idPergunta || !idAlternativaEscolhida || correta === undefined) {
-        return res.status(400).json({ erro: "Parâmetros inválidos" });
-    }
-
-    correta = correta ? 1 : 0;
-
-    database.executar(`
-        INSERT INTO resposta_usuario
-        (id_usuario, id_pergunta, id_alternativa_escolhida, correta)
-        VALUES (${idUsuario}, ${idPergunta}, ${idAlternativaEscolhida}, ${correta});
-    `).then(() => {
-        res.status(201).json({ message: "Resposta salva com sucesso" });
-    }).catch(erro => {
-        console.log(erro);
-        res.status(500).json({ erro: "Erro ao salvar resposta" });
+const quizModel = require("../models/quizModel");
+function listar(req, res) {
+    quizModel.listar((erro, resultado) => {
+        if (erro) {
+            console.error("Erro ao listar quizzes:", erro.sqlMessage || erro);
+            return res.status(400).json({ erro: erro.sqlMessage || erro });
+        }
+        res.status(200).json(resultado ?? []);
     });
 }
 
-function finalizarQuiz(req, res) {
-    var idUsuario = req.body.idUsuario;
-    var acertos = Number(req.body.acertos);
-    var total = Number(req.body.total_perguntas);
+function carregarQuizFixo(req, res) {
+    const idQuiz = req.params.idQuiz;
 
-    if (!idUsuario || isNaN(acertos) || isNaN(total)) {
-        return res.status(400).json({ erro: "Dados do quiz ou usuário faltando" });
-    }
+    quizModel.carregarQuiz(idQuiz, function(erro, resultado) {
+        if (erro) {
+            console.error("Erro ao carregar quiz:", erro);
+            return res.status(500).json({ erro: "Erro ao carregar quiz", detalhes: erro.sqlMessage || erro });
+        }
 
-    var minimo = total * 0.6;
+        if (!resultado) {
+            return res.status(404).json({ erro: "Quiz não encontrado" });
+        }
 
-    res.json({
-        message: acertos >= minimo ? "Parabéns! Quiz concluído." : "Quiz finalizado, mas você não atingiu o mínimo de acertos."
+        res.status(200).json(resultado);
+    });
+}
+
+function listarPerguntas(req, res) {
+    const idQuiz = req.params.idQuiz;
+
+    quizModel.listarPerguntas(idQuiz, (erro, resultado) => {
+        if (erro) {
+            console.error("Erro ao listar perguntas:", erro.sqlMessage || erro);
+            return res.status(400).json({ erro: erro.sqlMessage || erro });
+        }
+        res.status(200).json(resultado ?? []);
+    });
+}
+function listarAlternativas(req, res) {
+    const idPergunta = req.params.idPergunta;
+
+    quizModel.listarAlternativas(idPergunta, (erro, resultado) => {
+        if (erro) {
+            console.error("Erro ao listar alternativas:", erro.sqlMessage || erro);
+            return res.status(400).json({ erro: erro.sqlMessage || erro });
+        }
+        res.status(200).json(resultado ?? []);
     });
 }
 
 module.exports = {
-    obterQuiz,
-    enviarResposta,
-    finalizarQuiz
+    listar,
+    carregarQuizFixo,
+    listarPerguntas,
+    listarAlternativas
 };

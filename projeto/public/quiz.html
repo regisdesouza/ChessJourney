@@ -5,7 +5,7 @@
     <title>Quiz | ChessJourney</title>
     <link rel="stylesheet" href="./css/quiz.css">
 </head>
-<body onload="iniciarQuiz()">
+<body>
 
 <div class="menuLateral">
     <h2>Painel</h2>
@@ -17,11 +17,11 @@
 
 <main>
     <div id="imagemQuiz">
-        <img src="./assets/Chess-pana.svg" alt="Chess Quiz" />
+        <img src="./assets/Chess-pana.svg" alt="Chess Quiz">
     </div>
 
     <h1 id="tituloQuiz">Quiz</h1>
-    <p id="mensagemInicial">Teste seus conhecimentos. Clique em "Iniciar".</p>
+    <p id="mensagemInicial">Carregando...</p>
 
     <div id="divQuiz" style="display:none;">
         <h2 id="enunciado"></h2>
@@ -29,6 +29,7 @@
         <label><input type="radio" name="alternativa" id="alt2"><span id="lbl2"></span></label><br>
         <label><input type="radio" name="alternativa" id="alt3"><span id="lbl3"></span></label><br>
         <label><input type="radio" name="alternativa" id="alt4"><span id="lbl4"></span></label><br>
+
         <button id="btnSubmeter" onclick="submeter()">Submeter resposta</button>
         <button id="btnProxima" onclick="proxima()" disabled>Próxima</button>
         <h3 id="status"></h3>
@@ -48,42 +49,41 @@ var acertos = 0;
 var erros = 0;
 
 function iniciarQuiz() {
-var idQuiz = sessionStorage.ID_QUIZ;
-var idUsuario = sessionStorage.ID_USUARIO;
+    const idQuiz = sessionStorage.ID_QUIZ;
 
-if (!idQuiz) {
-    document.getElementById('mensagemInicial').innerHTML = "Nenhum quiz selecionado!";
-} else {
-    fetch("/quiz/" + idUsuario + "?idQuiz=" + idQuiz)
-        .then(r => r.json())
-        .then(quiz => {
+    if (!idQuiz) {
+        document.getElementById("mensagemInicial").innerHTML = "Nenhum quiz selecionado!";
+        return;
+    }
+
+    fetch("/quiz/fixed/" + idQuiz)
+        .then(r => {
+            if (!r.ok) throw new Error("Quiz não encontrado");
+            return r.json();
         })
-        .catch(erro => {
-            document.getElementById('mensagemInicial').innerHTML = "Erro ao carregar quiz.";
-        });
-}
-
-    fetch("/quiz/" + idUsuario + "?idQuiz=" + idQuiz)
-        .then(r => r.json())
         .then(d => {
+            if (!d || !d.perguntas || d.perguntas.length === 0) {
+                document.getElementById("mensagemInicial").innerHTML = "Quiz vazio ou não encontrado!";
+                return;
+            }
+
             quiz = d;
-            document.getElementById('tituloQuiz').innerHTML = quiz.titulo;
-            document.getElementById('divQuiz').style.display = "block";
-            document.getElementById('mensagemInicial').style.display = "none";
+            document.getElementById("tituloQuiz").innerHTML = quiz.titulo;
+            document.getElementById("divQuiz").style.display = "block";
+            document.getElementById("mensagemInicial").style.display = "none";
             index = 0;
             acertos = 0;
             erros = 0;
             mostrarQuestao();
         })
-        .catch(erro => {
-            console.log("Erro ao carregar quiz", erro);
-            document.getElementById('mensagemInicial').innerHTML = "Erro ao carregar quiz.";
+        .catch(() => {
+            document.getElementById("mensagemInicial").innerHTML = "Erro ao carregar quiz.";
         });
 }
 
 function limparRadios() {
     for (let i = 1; i <= 4; i++) {
-        const alt = document.getElementById('alt' + i);
+        const alt = document.getElementById("alt" + i);
         alt.checked = false;
         alt.disabled = false;
     }
@@ -91,28 +91,29 @@ function limparRadios() {
 
 function desabilitarRadios() {
     for (let i = 1; i <= 4; i++) {
-        document.getElementById('alt' + i).disabled = true;
+        document.getElementById("alt" + i).disabled = true;
     }
 }
 
 function mostrarQuestao() {
     var q = quiz.perguntas[index];
-    document.getElementById('enunciado').innerHTML = "Questão " + (index + 1) + " de " + quiz.perguntas.length + " — " + q.enunciado;
+    document.getElementById("enunciado").innerHTML =
+        "Questão " + (index + 1) + " de " + quiz.perguntas.length + " — " + q.enunciado;
 
     for (let i = 0; i < 4; i++) {
-        document.getElementById('lbl' + (i+1)).innerHTML = q.alternativas[i].texto;
-        document.getElementById('alt' + (i+1)).value = q.alternativas[i].id_alternativa;
+        document.getElementById("lbl" + (i + 1)).innerHTML = q.alternativas[i].texto;
+        document.getElementById("alt" + (i + 1)).value = q.alternativas[i].id_alternativa;
     }
 
     limparRadios();
-    document.getElementById('btnSubmeter').disabled = false;
-    document.getElementById('btnProxima').disabled = true;
-    document.getElementById('status').innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
+    document.getElementById("btnSubmeter").disabled = false;
+    document.getElementById("btnProxima").disabled = true;
+    document.getElementById("status").innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
 }
 
 function obterMarcada() {
     for (let i = 1; i <= 4; i++) {
-        const alt = document.getElementById('alt' + i);
+        const alt = document.getElementById("alt" + i);
         if (alt.checked) return alt;
     }
     return null;
@@ -120,54 +121,43 @@ function obterMarcada() {
 
 function submeter() {
     var marcada = obterMarcada();
-    if (!marcada) { alert("Escolha uma alternativa."); return; }
+    if (!marcada) {
+        alert("Escolha uma alternativa.");
+        return;
+    }
 
     var idAlternativa = marcada.value;
     var q = quiz.perguntas[index];
     var correta = q.alternativas.find(a => a.correta == 1).id_alternativa;
 
-    if (idAlternativa == correta) acertos++; else erros++;
-    document.getElementById('status').innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
+    if (idAlternativa == correta) acertos++;
+    else erros++;
+
+    document.getElementById("status").innerHTML =
+        "Acertos: " + acertos + " | Erros: " + erros;
 
     desabilitarRadios();
-    document.getElementById('btnSubmeter').disabled = true;
-    document.getElementById('btnProxima').disabled = false;
+    document.getElementById("btnSubmeter").disabled = true;
+    document.getElementById("btnProxima").disabled = false;
 
-    fetch("/quiz/resposta", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-            idUsuario: sessionStorage.ID_USUARIO,
-            idPergunta: q.id_pergunta,
-            idAlternativaEscolhida: idAlternativa,
-            correta: idAlternativa == correta
-        })
-    });
 }
 
 function proxima() {
     index++;
-    if (index >= quiz.perguntas.length) finalizarQuiz(); else mostrarQuestao();
+    if (index >= quiz.perguntas.length) finalizarQuiz();
+    else mostrarQuestao();
 }
 
 function finalizarQuiz() {
-    document.getElementById('divQuiz').style.display = "none";
-    document.getElementById('divFinal').style.display = "block";
-    document.getElementById('resultadoFinal').innerHTML = "Você acertou " + acertos + " de " + quiz.perguntas.length;
+    document.getElementById("divQuiz").style.display = "none";
+    document.getElementById("divFinal").style.display = "block";
 
-    fetch("/quiz/finalizar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ 
-            idUsuario: sessionStorage.ID_USUARIO,
-            acertos: acertos,
-            total_perguntas: quiz.perguntas.length
-        })
-    })
-    .then(res => res.json())
-    .then(data => alert(data.message))
-    .catch(erro => alert("Erro ao finalizar quiz: " + erro.message));
+    document.getElementById("resultadoFinal").innerHTML =
+        "Você acertou " + acertos + " de " + quiz.perguntas.length;
 }
+
+window.onload = iniciarQuiz;
 </script>
+
 </body>
 </html>
