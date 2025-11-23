@@ -5,7 +5,7 @@
     <title>Quiz | ChessJourney</title>
     <link rel="stylesheet" href="./css/quiz.css">
 </head>
-<body onload="mostrarUsuario()">
+<body onload="iniciarQuiz()">
 
 <div class="menuLateral">
     <h2>Painel</h2>
@@ -25,19 +25,14 @@
 
     <div id="divQuiz" style="display:none;">
         <h2 id="enunciado"></h2>
-
         <label><input type="radio" name="alternativa" id="alt1"><span id="lbl1"></span></label><br>
         <label><input type="radio" name="alternativa" id="alt2"><span id="lbl2"></span></label><br>
         <label><input type="radio" name="alternativa" id="alt3"><span id="lbl3"></span></label><br>
         <label><input type="radio" name="alternativa" id="alt4"><span id="lbl4"></span></label><br>
-
         <button id="btnSubmeter" onclick="submeter()">Submeter resposta</button>
         <button id="btnProxima" onclick="proxima()" disabled>Próxima</button>
-
         <h3 id="status"></h3>
     </div>
-
-    <button id="btnIniciar" onclick="iniciarQuiz()">Iniciar</button>
 
     <div id="divFinal" style="display:none; text-align:center;">
         <h2>Quiz Finalizado!</h2>
@@ -52,93 +47,74 @@ var index = 0;
 var acertos = 0;
 var erros = 0;
 
-function mostrarUsuario() {
-    var usuario = sessionStorage.NOME_USUARIO;
-    if (usuario) tituloQuiz.innerHTML = "Olá, " + usuario + "! Bem-vindo ao Quiz";
-}
-
-function inteiroAleatorio(num) {
-    return num - (num % 1);
-}
-
-function embaralhar(array) {
-    for (var i = array.length - 1; i > 0; i--) {
-        var j = inteiroAleatorio(Math.random() * (i + 1));
-        var temp = array[i];
-        array[i] = array[j];
-        array[j] = temp;
-    }
-}
-
-function limitarPerguntas(array, limite) {
-    var resultado = [];
-    for (var i = 0; i < limite && i < array.length; i++) {
-        resultado.push(array[i]);
-    }
-    return resultado;
-}
-
 function iniciarQuiz() {
-    var idUsuario = sessionStorage.ID_USUARIO;
-    fetch("/quiz/" + idUsuario)
+var idQuiz = sessionStorage.ID_QUIZ;
+var idUsuario = sessionStorage.ID_USUARIO;
+
+if (!idQuiz) {
+    document.getElementById('mensagemInicial').innerHTML = "Nenhum quiz selecionado!";
+} else {
+    fetch("/quiz/" + idUsuario + "?idQuiz=" + idQuiz)
+        .then(r => r.json())
+        .then(quiz => {
+        })
+        .catch(erro => {
+            document.getElementById('mensagemInicial').innerHTML = "Erro ao carregar quiz.";
+        });
+}
+
+    fetch("/quiz/" + idUsuario + "?idQuiz=" + idQuiz)
         .then(r => r.json())
         .then(d => {
             quiz = d;
-            embaralhar(quiz.perguntas);
-            quiz.perguntas = limitarPerguntas(quiz.perguntas, 5);
-            tituloQuiz.innerHTML = quiz.titulo;
-            divQuiz.style.display = "block";
-            btnIniciar.style.display = "none";
+            document.getElementById('tituloQuiz').innerHTML = quiz.titulo;
+            document.getElementById('divQuiz').style.display = "block";
+            document.getElementById('mensagemInicial').style.display = "none";
             index = 0;
             acertos = 0;
             erros = 0;
             mostrarQuestao();
+        })
+        .catch(erro => {
+            console.log("Erro ao carregar quiz", erro);
+            document.getElementById('mensagemInicial').innerHTML = "Erro ao carregar quiz.";
         });
 }
 
 function limparRadios() {
-    alt1.checked = false;
-    alt2.checked = false;
-    alt3.checked = false;
-    alt4.checked = false;
-    alt1.disabled = false;
-    alt2.disabled = false;
-    alt3.disabled = false;
-    alt4.disabled = false;
+    for (let i = 1; i <= 4; i++) {
+        const alt = document.getElementById('alt' + i);
+        alt.checked = false;
+        alt.disabled = false;
+    }
 }
 
 function desabilitarRadios() {
-    alt1.disabled = true;
-    alt2.disabled = true;
-    alt3.disabled = true;
-    alt4.disabled = true;
+    for (let i = 1; i <= 4; i++) {
+        document.getElementById('alt' + i).disabled = true;
+    }
 }
 
 function mostrarQuestao() {
     var q = quiz.perguntas[index];
-    enunciado.innerHTML = "Questão " + (index + 1) + " de " + quiz.perguntas.length + " — " + q.enunciado;
+    document.getElementById('enunciado').innerHTML = "Questão " + (index + 1) + " de " + quiz.perguntas.length + " — " + q.enunciado;
 
-    lbl1.innerHTML = q.alternativas[0].texto;
-    lbl2.innerHTML = q.alternativas[1].texto;
-    lbl3.innerHTML = q.alternativas[2].texto;
-    lbl4.innerHTML = q.alternativas[3].texto;
-
-    alt1.value = q.alternativas[0].id_alternativa;
-    alt2.value = q.alternativas[1].id_alternativa;
-    alt3.value = q.alternativas[2].id_alternativa;
-    alt4.value = q.alternativas[3].id_alternativa;
+    for (let i = 0; i < 4; i++) {
+        document.getElementById('lbl' + (i+1)).innerHTML = q.alternativas[i].texto;
+        document.getElementById('alt' + (i+1)).value = q.alternativas[i].id_alternativa;
+    }
 
     limparRadios();
-    btnSubmeter.disabled = false;
-    btnProxima.disabled = true;
-    status.innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
+    document.getElementById('btnSubmeter').disabled = false;
+    document.getElementById('btnProxima').disabled = true;
+    document.getElementById('status').innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
 }
 
 function obterMarcada() {
-    if (alt1.checked) return alt1;
-    if (alt2.checked) return alt2;
-    if (alt3.checked) return alt3;
-    if (alt4.checked) return alt4;
+    for (let i = 1; i <= 4; i++) {
+        const alt = document.getElementById('alt' + i);
+        if (alt.checked) return alt;
+    }
     return null;
 }
 
@@ -148,17 +124,14 @@ function submeter() {
 
     var idAlternativa = marcada.value;
     var q = quiz.perguntas[index];
-    var correta = null;
-    for (var i = 0; i < q.alternativas.length; i++) {
-        if (q.alternativas[i].correta == 1) { correta = q.alternativas[i].id_alternativa; break; }
-    }
+    var correta = q.alternativas.find(a => a.correta == 1).id_alternativa;
 
     if (idAlternativa == correta) acertos++; else erros++;
-    status.innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
+    document.getElementById('status').innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
 
     desabilitarRadios();
-    btnSubmeter.disabled = true;
-    btnProxima.disabled = false;
+    document.getElementById('btnSubmeter').disabled = true;
+    document.getElementById('btnProxima').disabled = false;
 
     fetch("/quiz/resposta", {
         method: "POST",
@@ -178,23 +151,23 @@ function proxima() {
 }
 
 function finalizarQuiz() {
-    divQuiz.style.display = "none";
-    divFinal.style.display = "block";
-    resultadoFinal.innerHTML = "Você acertou " + acertos + " de " + quiz.perguntas.length;
+    document.getElementById('divQuiz').style.display = "none";
+    document.getElementById('divFinal').style.display = "block";
+    document.getElementById('resultadoFinal').innerHTML = "Você acertou " + acertos + " de " + quiz.perguntas.length;
 
     fetch("/quiz/finalizar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ idUsuario: sessionStorage.ID_USUARIO })
+        body: JSON.stringify({ 
+            idUsuario: sessionStorage.ID_USUARIO,
+            acertos: acertos,
+            total_perguntas: quiz.perguntas.length
+        })
     })
     .then(res => res.json())
-    .then(data => {
-        if (data.quizConcluido) alert("Parabéns! Você desbloqueou o próximo quiz (nível " + data.novoNivel + ")!");
-        else alert("Você não atingiu o mínimo de acertos para desbloquear o próximo quiz.");
-    })
-    .catch(erro => console.log("Erro ao finalizar quiz:", erro));
+    .then(data => alert(data.message))
+    .catch(erro => alert("Erro ao finalizar quiz: " + erro.message));
 }
 </script>
-
 </body>
 </html>

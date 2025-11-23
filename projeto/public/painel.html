@@ -1,180 +1,64 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <title>Painel</title>
-    <link rel="stylesheet" href="./css/painel.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel | ChessJourney</title>
+<link rel="stylesheet" href="./css/painel.css">
 </head>
 <body>
-
 <div class="container">
-
-    <div class="menuLateral">
+    <aside class="menuLateral">
         <h2>Painel</h2>
         <a href="./painel.html">Início</a>
-        <a href="./dashboard/dash-usuario.html">Estatísticas</a>
-        <a href="./dashboard/dash-geral.html">Geral</a>
-    </div>
+        <a href="./quiz.html">Quiz</a>
+        <a href="./dash-usuario.html">Estatísticas</a>
+        <a href="./dash-geral.html">Geral</a>
+    </aside>
 
-    <div class="conteudo">
-
+    <main class="conteudo">
         <div class="linhaInfos">
             <div class="cardInfo">
-                <h3>Informações do Usuário</h3>
-                <p><b>Nome:</b> <span id="nomeUser"></span></p>
+                <h3>Bem-vindo</h3>
+                <p id="nomeUsuario"></p>
             </div>
-
             <div class="cardInfo">
-                <h3>Quiz Atual</h3>
-                <p><span id="quizAtual"></span></p>
-            </div>
-
-            <div class="cardInfo">
-                <h3>Próximo Quiz</h3>
-                <p><span id="proximoQuiz"></span></p>
+                <h3>Email</h3>
+                <p id="emailUsuario"></p>
             </div>
         </div>
 
-        <div class="recomendacoes">
-            <h3>Recomendações para o quiz atual:</h3>
-            <div id="textoRecomendacao"></div>
-        </div>
-
-        <h3 style="margin-top: 30px;">Quizzes Disponíveis</h3>
-        <div id="listaQuizzes"></div>
-
-    </div>
-
+        <section id="quizzesSection">
+            <h3>Quizzes Disponíveis</h3>
+            <div id="listaQuizzes">
+                <div class="quizBox">
+                    <p>Quiz 1</p>
+                    <button onclick="irParaQuiz(1)">Iniciar</button>
+                </div>
+                <div class="quizBox">
+                    <p>Quiz 2</p>
+                    <button onclick="irParaQuiz(2)">Iniciar</button>
+                </div>
+                <div class="quizBox">
+                    <p>Quiz 3</p>
+                    <button onclick="irParaQuiz(3)">Iniciar</button>
+                </div>
+                <div class="quizBox">
+                    <p>Quiz 4</p>
+                    <button onclick="irParaQuiz(4)">Iniciar</button>
+                </div>
+            </div>
+        </section>
+    </main>
 </div>
 
 <script>
-const idUsuario = sessionStorage.ID_USUARIO;
+nomeUsuario.innerHTML = sessionStorage.NOME_USUARIO ? sessionStorage.NOME_USUARIO : "Visitante";
+emailUsuario.innerHTML = sessionStorage.EMAIL_USUARIO ? sessionStorage.EMAIL_USUARIO : "Não informado";
 
-if (!idUsuario) {
-    window.location.href = "tela-login.html";
+function irParaQuiz(id) {
+    window.location.href = "./quiz.html?id=" + id;
 }
-
-var nivelAtual = 1;  // será atualizado ao carregarPainel()
-
-function carregarPainel() {
-    fetch("/painel/" + idUsuario)
-        .then(res => res.json())
-        .then(dados => {
-
-            console.log("DADOS DO PAINEL:", dados);
-
-            const usuario = dados.usuario?.[0];
-            const quizAtual = dados.quizAtual?.[0];
-            const proximoQuiz = dados.proximoQuiz?.[0];
-
-            document.getElementById("nomeUser").innerText = usuario?.nome || "Sem nome";
-
-            if (quizAtual) {
-                document.getElementById("quizAtual").innerText = quizAtual.titulo;
-                nivelAtual = quizAtual.id_quiz;
-
-                carregarRecomendacoes(quizAtual.id_quiz);
-            } else {
-                document.getElementById("quizAtual").innerText = "Nenhum quiz em andamento";
-                document.getElementById("textoRecomendacao").innerHTML =
-                    "<p>Faça seu primeiro quiz para receber recomendações!</p>";
-                nivelAtual = 1;
-            }
-
-            if (proximoQuiz) {
-                document.getElementById("proximoQuiz").innerText = proximoQuiz.titulo;
-            } else {
-                document.getElementById("proximoQuiz").innerText = "Nenhum próximo quiz";
-            }
-
-            montarListaQuizzes(nivelAtual);
-        })
-        .catch(erro => {
-            console.log("Erro ao carregar painel:", erro);
-        });
-}
-
-function carregarRecomendacoes(idQuiz) {
-    fetch("/painel/recomendacao/quiz/" + idQuiz)
-        .then(res => res.json())
-        .then(lista => {
-
-            console.log("RESPOSTA RECOMENDACOES:", lista);
-
-            if (!Array.isArray(lista)) {
-                document.getElementById("textoRecomendacao").innerHTML =
-                    "<p>Retorno inválido da API.</p>";
-                return;
-            }
-
-            if (lista.length === 0) {
-                document.getElementById("textoRecomendacao").innerHTML =
-                    "<p>Não há recomendações para este quiz.</p>";
-                return;
-            }
-
-            let html = "";
-            lista.forEach(rec => {
-                html += "<div class='rec'>";
-                html += "<h4>" + rec.titulo + "</h4>";
-                html += "<p>" + rec.descricao + "</p>";
-                html += "<p>" + rec.conteudo + "</p>";
-                if (rec.url_recurso) {
-                    html += "<p><a href='" + rec.url_recurso +
-                            "' target='_blank'>Acessar recurso</a></p>";
-                }
-                html += "</div>";
-            });
-
-            document.getElementById("textoRecomendacao").innerHTML = html;
-        })
-        .catch(erro => {
-            console.log("Erro ao carregar recomendações:", erro);
-            document.getElementById("textoRecomendacao").innerHTML =
-                "<p>Erro ao carregar recomendações.</p>";
-        });
-}
-
-function montarListaQuizzes(nivel) {
-    var area = document.getElementById("listaQuizzes");
-    area.innerHTML = "";
-
-    var total = 4;
-    var n = 1;
-
-    while (n <= total) {
-        var caixa = document.createElement("div");
-        caixa.className = "quizBox";
-
-        var txt = document.createElement("p");
-        txt.innerHTML = "Quiz " + n;
-
-        var btn = document.createElement("button");
-
-        if (n <= nivel) {
-            btn.innerHTML = "Acessar";
-            btn.onclick = (function(num){
-                return function(){
-                    sessionStorage.setItem("QUIZ_ATUAL", num);
-                    window.location.href = "./quiz.html";
-                }
-            })(n);
-        } else {
-            btn.innerHTML = "Bloqueado";
-            btn.disabled = true;
-            btn.className = "bloqueado";
-        }
-
-        caixa.appendChild(txt);
-        caixa.appendChild(btn);
-        area.appendChild(caixa);
-
-        n++;
-    }
-}
-
-carregarPainel();
 </script>
-
 </body>
 </html>

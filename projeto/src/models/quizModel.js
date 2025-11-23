@@ -1,23 +1,23 @@
 var database = require("../database/config");
 
-function buscarQuestoesPorNivel(nivel) {
-    var instrucaoSql = `
+function buscarQuestoesPorIdQuiz(idQuiz) {
+    var query = `
         SELECT 
-            q.titulo,
+            q.id_quiz,
+            q.titulo AS titulo_quiz,
             p.id_pergunta,
             p.enunciado,
             a.id_alternativa,
             a.texto AS texto_alternativa,
             a.correta
         FROM quiz q
-        JOIN pergunta p ON p.id_quiz = q.id_quiz
-        JOIN alternativa a ON a.id_pergunta = p.id_pergunta
-        WHERE q.numero_quiz = ${nivel}
-        ORDER BY p.id_pergunta, a.id_alternativa;
+        JOIN pergunta p ON q.id_quiz = p.id_quiz
+        JOIN alternativa a ON p.id_pergunta = a.id_pergunta
+        WHERE q.id_quiz = ${idQuiz};
     `;
-    return database.executar(instrucaoSql);
+    return database.executar(query);
 }
 
 module.exports = {
-    buscarQuestoesPorNivel
+    buscarQuestoesPorIdQuiz
 };

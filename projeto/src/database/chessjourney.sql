@@ -5,17 +5,13 @@ CREATE TABLE usuario (
     id_usuario INT PRIMARY KEY AUTO_INCREMENT,
     nome VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
-    senha VARCHAR(255) NOT NULL,
-    nivel_atual INT DEFAULT 1
+    senha VARCHAR(255) NOT NULL
 );
 
 CREATE TABLE quiz (
     id_quiz INT PRIMARY KEY AUTO_INCREMENT,
     titulo VARCHAR(400) NOT NULL,
-    numero_quiz INT NOT NULL,
-    nivel INT NOT NULL DEFAULT 1,
-    id_quiz_proximo INT DEFAULT NULL,
-    FOREIGN KEY (id_quiz_proximo) REFERENCES quiz(id_quiz)
+    numero_quiz INT NOT NULL
 );
 
 CREATE TABLE recomendacao (
@@ -37,16 +33,16 @@ CREATE TABLE usuario_quiz (
     FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz)
 );
 
-
 CREATE TABLE progresso_quiz (
     id_progresso INT PRIMARY KEY AUTO_INCREMENT,
     id_usuario INT NOT NULL,
-    quiz_atual INT NOT NULL,
+    id_quiz INT NOT NULL,
     status_progresso ENUM('pendente','concluido') DEFAULT 'pendente',
     tentativas INT DEFAULT 0,
+    data_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     data_conclusao TIMESTAMP NULL DEFAULT NULL,
     FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
-    FOREIGN KEY (quiz_atual) REFERENCES quiz(id_quiz)
+    FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz)
 );
 
 CREATE TABLE pergunta (
@@ -75,6 +71,7 @@ CREATE TABLE resposta_usuario (
     FOREIGN KEY (id_pergunta) REFERENCES pergunta(id_pergunta),
     FOREIGN KEY (id_alternativa_escolhida) REFERENCES alternativa(id_alternativa)
 );
+
 
 
 INSERT INTO quiz (titulo, numero_quiz, nivel) VALUES
