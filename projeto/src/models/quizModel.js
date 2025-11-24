@@ -68,9 +68,20 @@ function listarAlternativas(idPergunta, callback) {
         .catch(erro => callback(erro, null));
 }
 
+function enviarBusca(idUsuario, idPergunta, id_alternativa_escolhida, correta) {
+    const sql = `
+        INSERT INTO resposta_usuario
+        (id_usuario, id_pergunta, id_alternativa_escolhida, correta)
+        VALUES ('${idUsuario}', ${idPergunta}, ${id_alternativa_escolhida}, ${correta})
+    `;
+    return database.executar(sql);
+}
+
+
 module.exports = {
     listar,
     carregarQuiz,
     listarPerguntas,
-    listarAlternativas
+    listarAlternativas,
+    enviarBusca
 };

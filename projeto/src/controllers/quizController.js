@@ -49,9 +49,24 @@ function listarAlternativas(req, res) {
     });
 }
 
+
+
+function enviarBusca(req, res) {
+    const { idUsuario, idPergunta, id_alternativa_escolhida, correta } = req.body;
+
+    if (!idUsuario || !idPergunta || !id_alternativa_escolhida) {
+        return res.status(400).send("Dados inválidos!");
+    }
+
+    quizModel.enviarBusca(idUsuario, idPergunta, id_alternativa_escolhida, correta)
+        .then(resultado => res.json({ sucesso: true, resultado }))
+        .catch(erro => res.status(500).json({ erro: erro.sqlMessage || erro }));
+}
+
 module.exports = {
     listar,
     carregarQuizFixo,
     listarPerguntas,
-    listarAlternativas
+    listarAlternativas,
+    enviarBusca
 };

@@ -8,103 +8,110 @@
 </head>
 <body>
 
-<div class="container">
-    <aside class="menuLateral">
-        <h2>Painel</h2>
-        <a href="./painel.html">Início</a>
-        <a href="./quiz.html">Quiz</a>
-        <a href="./dash-usuario.html">Estatísticas</a>
-        <a href="./dash-geral.html">Geral</a>
-    </aside>
+<div class="menuLateral">
+    <h2>Painel</h2>
+    <a href="./painel.html">Início</a>
+    <a href="./tabuleiro.html">Tabuleiro</a>
+    <a href="./dash-usuario.html">Estatísticas</a>
+    <a href="./dash-geral.html">Geral</a>
+    <button id="btnSair">Sair</button>
+</div>
 
-    <main class="conteudo">
-        <div class="linhaInfos">
-            <div class="cardInfo">
-                <h3>Bem-vindo</h3>
-                <p id="nomeUsuario"></p>
-            </div>
-            <div class="cardInfo">
-                <h3>Email</h3>
-                <p id="emailUsuario"></p>
-            </div>
+<main>
+    <div class="linhaInfos">
+        <div class="cardInfo">
+            <h3>Bem-vindo</h3>
+            <p id="nomeUsuario"></p>
         </div>
 
-        <section id="quizzesSection">
-            <h3>Quizzes Disponíveis</h3>
-            <div id="listaQuizzes"></div>
-        </section>
+        <div class="cardInfo">
+            <h3>Email</h3>
+            <p id="emailUsuario"></p>
+        </div>
+    </div>
 
-        <section id="recomendacoesSection">
-            <h3>Recomendações</h3>
-            <div id="listaRecomendacoes"></div>
-        </section>
-    </main>
-</div>
+    <section id="quizzesSection">
+        <h3>Quizzes Disponíveis</h3>
+        <div id="listaQuizzes"></div>
+    </section>
+
+    <section id="recomendacoesSection">
+        <h3>Recomendações</h3>
+        <div id="listaRecomendacoes"></div>
+    </section>
+</main>
 
 <script>
 document.getElementById("nomeUsuario").innerText = sessionStorage.NOME_USUARIO || "Visitante";
 document.getElementById("emailUsuario").innerText = sessionStorage.EMAIL_USUARIO || "Não informado";
 
+document.getElementById("btnSair").onclick = function () {
+    fetch("/usuarios/sair").then(() => {
+        sessionStorage.clear();
+        window.location.href = "tela-login.html";
+    });
+};
+
+
 function carregarQuizzes() {
     fetch("/quiz/listar")
-        .then(res => res.json())
+        .then(r => r.json())
         .then(lista => {
-            if (!Array.isArray(lista)) {
-                console.log("Não veio array:", lista);
-                return;
-            }
+            if (!lista || lista.length === undefined) return;
 
-            const divQuizzes = document.getElementById("listaQuizzes");
-            divQuizzes.innerHTML = "";
+            const div = document.getElementById("listaQuizzes");
+            div.innerHTML = "";
 
-            lista.forEach(q => {
+            for (let i = 0; i < lista.length; i++) {
+                const q = lista[i];
                 const box = document.createElement("div");
+                box.className = "quizBox";
+
                 box.innerHTML = `
                     <p>${q.titulo}</p>
                     <button>Iniciar</button>
                 `;
-                box.querySelector("button").addEventListener("click", () => {
+
+                box.querySelector("button").onclick = function () {
                     sessionStorage.ID_QUIZ = q.id_quiz;
                     window.location.href = "quiz.html";
-                });
-                divQuizzes.appendChild(box);
-            });
+                };
+
+                div.appendChild(box);
+            }
 
             carregarRecomendacoes(lista);
-        })
-        .catch(e => console.log("Erro ao listar quizzes:", e));
+        });
 }
 
 function carregarRecomendacoes(quizzes) {
-    const divRecomendacoes = document.getElementById("listaRecomendacoes");
-    divRecomendacoes.innerHTML = "";
+    const div = document.getElementById("listaRecomendacoes");
+    div.innerHTML = "";
 
-   
-    quizzes.forEach(q => {
+    for (let i = 0; i < quizzes.length; i++) {
+        const q = quizzes[i];
+
         fetch("/painel/recomendacoes/" + q.id_quiz)
-            .then(res => res.json())
+            .then(r => r.json())
             .then(lista => {
-                if (!Array.isArray(lista)) return;
+                if (!lista || lista.length === undefined) return;
 
-                lista.forEach(rec => {
+                for (let j = 0; j < lista.length; j++) {
+                    const rec = lista[j];
                     const box = document.createElement("div");
-                    box.className = "rec"; 
+                    box.className = "rec";
+
                     box.innerHTML = `
                         <h4>${rec.titulo}</h4>
                         <p>${rec.descricao}</p>
                         <p>${rec.conteudo}</p>
-                        ${rec.url_recurso ? `<p><a href="${rec.url_recurso}" target="_blank">Acessar recurso</a></p>` : ""}
+                        ${rec.url_recurso ? `<a href="${rec.url_recurso}" target="_blank">Acessar recurso</a>` : ""}
                     `;
-                    divRecomendacoes.appendChild(box);
-                });
-            })
-            .catch(e => console.error("Erro ao carregar recomendações do quiz " + q.id_quiz, e));
-    });
-}
 
-function abrirQuiz(idQuiz) {
-    sessionStorage.ID_QUIZ = idQuiz;
-    window.location.href = "quiz.html";
+                    div.appendChild(box);
+                }
+            });
+    }
 }
 
 window.onload = carregarQuizzes;

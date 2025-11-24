@@ -47,6 +47,9 @@ var quiz = null;
 var index = 0;
 var acertos = 0;
 var erros = 0;
+var idPergunta = 0;
+var idUsuario = sessionStorage.ID_USUARIO;
+
 
 function iniciarQuiz() {
     const idQuiz = sessionStorage.ID_QUIZ;
@@ -118,19 +121,20 @@ function obterMarcada() {
     }
     return null;
 }
-
 function submeter() {
     var marcada = obterMarcada();
+
     if (!marcada) {
         alert("Escolha uma alternativa.");
         return;
     }
 
-    var idAlternativa = marcada.value;
     var q = quiz.perguntas[index];
-    var correta = q.alternativas.find(a => a.correta == 1).id_alternativa;
+    var idPergunta = q.id_pergunta;            
+    var idAlternativa = marcada.value;
+    var altCorreta = q.alternativas.find(a => a.correta == 1).id_alternativa;
 
-    if (idAlternativa == correta) acertos++;
+    if (idAlternativa == altCorreta) acertos++;
     else erros++;
 
     document.getElementById("status").innerHTML =
@@ -140,7 +144,9 @@ function submeter() {
     document.getElementById("btnSubmeter").disabled = true;
     document.getElementById("btnProxima").disabled = false;
 
+    enviarBusca(idPergunta, idAlternativa, altCorreta); 
 }
+
 
 function proxima() {
     index++;
@@ -148,12 +154,43 @@ function proxima() {
     else mostrarQuestao();
 }
 
+function enviarBusca(idPergunta, id_alternativa_escolhida, correta) {
+    var idUsuario = sessionStorage.ID_USUARIO;
+    if (!idUsuario) {
+        alert("Usuário não logado!");
+        return;
+    }
+
+    var corpo = {
+        idUsuario,
+        idPergunta,
+        id_alternativa_escolhida,
+        correta
+    };
+
+    fetch(`/quiz/enviarRespostas`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(corpo)
+    })
+    .then(res => {
+        console.log("resposta:", res);
+        if (res.ok) console.log("Resposta enviada com sucesso!");
+        else if (res.status === 400) alert("Dados inválidos (400)!");
+        else throw "Erro: " + res.status;
+    })
+    .catch(err => console.log("#ERRO:", err));
+}
+
+
+
 function finalizarQuiz() {
     document.getElementById("divQuiz").style.display = "none";
     document.getElementById("divFinal").style.display = "block";
 
     document.getElementById("resultadoFinal").innerHTML =
         "Você acertou " + acertos + " de " + quiz.perguntas.length;
+
 }
 
 window.onload = iniciarQuiz;

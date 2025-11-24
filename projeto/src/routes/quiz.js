@@ -8,4 +8,6 @@ router.get("/alternativas/:idPergunta", quizController.listarAlternativas);
 
 router.get("/fixed/:idQuiz", quizController.carregarQuizFixo);
 
+router.post("/enviarRespostas", quizController.enviarBusca);
+
 module.exports = router;
