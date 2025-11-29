@@ -186,8 +186,8 @@ INSERT INTO alternativa (id_pergunta, texto, correta) VALUES
 (40,'Não avançar o rei',0),(40,'Trocar a rainha',0),(40,'Evitar movimentos que resultem em empate ou repetição',1),(40,'Capturar o último peão',0);
 
 INSERT INTO recomendacao (titulo, tipo, descricao, conteudo, id_quiz, url_recurso) VALUES
-('Movimento das peças', 'Livro', 'Livro Xadrez Básico', 'Capítulos 1 a 5 do livro e/ou acessar o artigo', 1, 'https://www.chess.com/pt-BR/blog/L4wKov/movimento-das-pecas-no-xadrez'),
-('Táticas Básicas', 'Exercício', 'Ataque duplo e Cravada', 'Acesse o artigo para aprender mais sobre', 2, 'https://www.chess.com/pt-BR/article/view/taticas-de-xadrez-38-definicoes-e-exemplos'),
+('Movimento das peças', 'Livro', 'Livro Xadrez Básico', 'Capítulos 1 a 5 do livro e/ou acessar o artigo', 1, 'https://www.soxadrez.com.br/conteudos/movimentos/'),
+('Táticas Básicas', 'Exercício', 'Ataque duplo e Cravada', 'Acesse o artigo para aprender mais sobre', 2, 'https://www.soxadrez.com.br/conteudos/estrategias_taticas/tatica1.php'),
 ('Estratégias de Abertura', 'Conceito', 'Aprenda a controlar o centro do tabuleiro', 'Siga o aritgo para mais informações', 3, 'https://www.xadrezforte.com.br/guia-definitivo-para-as-aberturas-de-xadrez/'),
 ('Finais Simples', 'Livro', 'Aprenda técnicas de finais simples', 'Acessar o artigo', 4, 'https://www.chess.com/article/view/chess-endgames');
 
