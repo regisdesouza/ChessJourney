@@ -11,6 +11,7 @@
     <h2>Painel</h2>
     <a href="./painel.html">Início</a>
     <a href="./quiz.html">Quiz</a>
+    <a href="./tabuleiro.html">Desafio</a>
     <a href="./dash-usuario.html">Estatísticas</a>
     <a href="./dash-geral.html">Geral</a>
 </div>
@@ -30,8 +31,6 @@
         <label><input type="radio" name="alternativa" id="alt3"><span id="lbl3"></span></label><br>
         <label><input type="radio" name="alternativa" id="alt4"><span id="lbl4"></span></label><br>
 
-        <button id="btnSubmeter" onclick="submeter()">Submeter resposta</button>
-        <button id="btnProxima" onclick="proxima()" disabled>Próxima</button>
         <h3 id="status"></h3>
     </div>
 
@@ -47,13 +46,10 @@ var quiz = null;
 var index = 0;
 var acertos = 0;
 var erros = 0;
-var idPergunta = 0;
 var idUsuario = sessionStorage.ID_USUARIO;
-
 
 function iniciarQuiz() {
     const idQuiz = sessionStorage.ID_QUIZ;
-
     if (!idQuiz) {
         document.getElementById("mensagemInicial").innerHTML = "Nenhum quiz selecionado!";
         return;
@@ -69,7 +65,6 @@ function iniciarQuiz() {
                 document.getElementById("mensagemInicial").innerHTML = "Quiz vazio ou não encontrado!";
                 return;
             }
-
             quiz = d;
             document.getElementById("tituloQuiz").innerHTML = quiz.titulo;
             document.getElementById("divQuiz").style.display = "block";
@@ -104,35 +99,30 @@ function mostrarQuestao() {
         "Questão " + (index + 1) + " de " + quiz.perguntas.length + " — " + q.enunciado;
 
     for (let i = 0; i < 4; i++) {
+        const input = document.getElementById("alt" + (i + 1));
         document.getElementById("lbl" + (i + 1)).innerHTML = q.alternativas[i].texto;
-        document.getElementById("alt" + (i + 1)).value = q.alternativas[i].id_alternativa;
+        input.value = q.alternativas[i].id_alternativa;
+        input.onclick = () => responder(input);
     }
 
     limparRadios();
-    document.getElementById("btnSubmeter").disabled = false;
-    document.getElementById("btnProxima").disabled = true;
     document.getElementById("status").innerHTML = "Acertos: " + acertos + " | Erros: " + erros;
 }
 
-function obterMarcada() {
-    for (let i = 1; i <= 4; i++) {
-        const alt = document.getElementById("alt" + i);
-        if (alt.checked) return alt;
-    }
-    return null;
-}
-function submeter() {
-    var marcada = obterMarcada();
-
-    if (!marcada) {
-        alert("Escolha uma alternativa.");
-        return;
-    }
+function responder(marcada) {
+    if (!marcada) return;
 
     var q = quiz.perguntas[index];
     var idPergunta = q.id_pergunta;            
     var idAlternativa = marcada.value;
-    var altCorreta = q.alternativas.find(a => a.correta == 1).id_alternativa;
+
+    var altCorreta = null;
+    for (var i = 0; i < q.alternativas.length; i++) {
+        if (q.alternativas[i].correta == 1) {
+            altCorreta = q.alternativas[i].id_alternativa;
+            break;
+        }
+    }
 
     if (idAlternativa == altCorreta) acertos++;
     else erros++;
@@ -141,14 +131,7 @@ function submeter() {
         "Acertos: " + acertos + " | Erros: " + erros;
 
     desabilitarRadios();
-    document.getElementById("btnSubmeter").disabled = true;
-    document.getElementById("btnProxima").disabled = false;
-
-    enviarBusca(idPergunta, idAlternativa, altCorreta); 
-}
-
-
-function proxima() {
+    enviarBusca(idPergunta, idAlternativa, altCorreta);
     index++;
     if (index >= quiz.perguntas.length) finalizarQuiz();
     else mostrarQuestao();
@@ -156,10 +139,7 @@ function proxima() {
 
 function enviarBusca(idPergunta, id_alternativa_escolhida, correta) {
     var idUsuario = sessionStorage.ID_USUARIO;
-    if (!idUsuario) {
-        alert("Usuário não logado!");
-        return;
-    }
+    if (!idUsuario) return;
 
     var corpo = {
         idUsuario,
@@ -175,22 +155,15 @@ function enviarBusca(idPergunta, id_alternativa_escolhida, correta) {
     })
     .then(res => {
         console.log("resposta:", res);
-        if (res.ok) console.log("Resposta enviada com sucesso!");
-        else if (res.status === 400) alert("Dados inválidos (400)!");
-        else throw "Erro: " + res.status;
     })
     .catch(err => console.log("#ERRO:", err));
 }
 
-
-
 function finalizarQuiz() {
     document.getElementById("divQuiz").style.display = "none";
     document.getElementById("divFinal").style.display = "block";
-
     document.getElementById("resultadoFinal").innerHTML =
         "Você acertou " + acertos + " de " + quiz.perguntas.length;
-
 }
 
 window.onload = iniciarQuiz;

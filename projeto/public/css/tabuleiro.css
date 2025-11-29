@@ -1,8 +1,70 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&display=swap');
+
+body {
+    background: #121212;
+    font-family: 'Noto Sans', sans-serif;
+    color: white;
+    display: flex;
+    margin: 0;
+    height: 100%;
+}
+
+.menuLateral {
+    background: #1c1c1c;
+    border-right: 1px solid #2a2a2a;
+    padding: 20px;
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+}
+
+.menuLateral h2 {
+    color: #EFBF04;
+    margin-bottom: 20px;
+}
+
+.menuLateral a {
+    color: white;
+    text-decoration: none;
+    margin-bottom: 15px;
+    display: block;
+}
+
+#btnSair {
+    background: #EFBF04;
+    color: #121212;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: auto;
+}
+
+div > .tituloPrincipal {
+    color: #EFBF04;
+    text-align: center;
+    margin-top: 20px;
+}
+
+.containerPrincipal {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 30px;
+}
+
+.areaTabuleiro {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 #tabuleiro {
     width: 480px;
     height: 480px;
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
+    border: 2px solid #333;
+    display: flex;
+    flex-wrap: wrap;
 }
 
 .casa {
@@ -11,13 +73,46 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
-.branco { background-color: #fff; }
-.verde  { background-color: green; }
+.branco {
+    background-color: white;
+}
+
+.verde {
+    background-color: #008000;
+}
 
 .peca {
     width: 45px;
     height: 45px;
     pointer-events: none;
+}
+
+.infoJogo {
+    background: #1c1c1c;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 20px;
+    width: 480px;
+    text-align: center;
+}
+
+.areaInstrucoes {
+    width: 300px;
+    background: #1c1c1c;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.instrucoesBox {
+    background: #2a2a2a;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 5px;
+}
+
+.instrucoesBox p {
+    margin: 5px 0;
 }

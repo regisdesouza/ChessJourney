@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel | ChessJourney</title>    
+<title>Painel</title>    
 <link rel="stylesheet" href="./css/painel.css">
 </head>
 <body>
@@ -11,13 +11,13 @@
 <div class="menuLateral">
     <h2>Painel</h2>
     <a href="./painel.html">Início</a>
-    <a href="./tabuleiro.html">Tabuleiro</a>
+    <a href="./tabuleiro.html">Desafio</a>
     <a href="./dash-usuario.html">Estatísticas</a>
     <a href="./dash-geral.html">Geral</a>
     <button id="btnSair">Sair</button>
 </div>
 
-<main>
+<div class="container" > 
     <div class="linhaInfos">
         <div class="cardInfo">
             <h3>Bem-vindo</h3>
@@ -39,7 +39,7 @@
         <h3>Recomendações</h3>
         <div id="listaRecomendacoes"></div>
     </section>
-</main>
+</div>
 
 <script>
 document.getElementById("nomeUsuario").innerText = sessionStorage.NOME_USUARIO || "Visitante";

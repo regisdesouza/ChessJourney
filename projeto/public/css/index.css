@@ -72,23 +72,26 @@ html, body {
 }
 
 .hero-texto p {
-    color: #6E6E73;
+    color: #bebec0;
     font-size: 1.1rem;
     margin-bottom: 30px;
     line-height: 1.5;
 }
 
 .hero-imagem {
-    flex: 1;
     display: flex;
+    flex: 1;
     justify-content: center;
     align-items: center;
-    min-width: 300px;
+    width: 300px;
+    
 }
 
 .hero-imagem img {
-    width: 80%;
-    max-width: 400px;
+    width: 60%;
+}
+.hero-iamgem span {
+justify-self: flex-end;
 }
 
 .botao {
@@ -136,7 +139,7 @@ html, body {
 }
 
 .card p {
-    color: #6E6E73;
+    color: #bebec0;
     font-size: 0.95rem;
     line-height: 1.4; 
 }
@@ -159,3 +162,16 @@ html, body {
     font-size: 0.9rem;
 }
 
+.fonte p{
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding-top: 3%;
+    padding-left: 7%;
+}
+
+.fonte a {
+    color: #0275C9;
+    font-weight: 600;
+    text-decoration: none;
+}

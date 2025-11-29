@@ -1,159 +1,173 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chessjourney</title>
     <link rel="stylesheet" href="./css/tabuleiro.css">
+    <title>Mate de Philidor</title>
 </head>
-<body onload="criarTabuleiro()">
-    
-    
-    <div id="divContainer">
-
-        <div id="tabuleiro">
-
-
-        </div>
-
-
+<body>
+    <div class="menuLateral">
+        <h2>ChessJourney</h2>
+        <a href="./painel.html">Início</a>
+        <a href="./tabuleiro.html">Desafio</a>
+        <a href="./dash-usuario.html">Estatísticas</a>
+        <a href="./dash-geral.html">Geral</a>
+        <button id="btnSair">Sair</button>
     </div>
-</body>
-<script>
 
-var vezJogar = "branco";  
-var casaSelecionada = null;
-var movimentosPecas = [];
+    <div>
+        <h1 class="tituloPrincipal">Mate de Philidor</h1>
+        
+        <div class="containerPrincipal">
+            <div class="areaTabuleiro">
+                <div id="tabuleiro"></div>
+                <div class="infoJogo">
+                    <h3>Status do Jogo</h3>
+                    <div id="infoJogo">Vez das: Pretas</div>
+                </div>
+            </div>
 
-var tabuleiroPos = 
-[
-    ['a8','b8','c8','d8','e8','f8','g8','h8'],
-    ['a7','b7','c7','d7','e7','f7','g7','h7'],
-    ['a6','b6','c6','d6','e6','f6','g6','h6'],
-    ['a5','b5','c5','d5','e5','f5','g5','h5'],
-    ['a4','b4','c4','d4','e4','f4','g4','h4'],
-    ['a3','b3','c3','d3','e3','f3','g3','h3'],
-    ['a2','b2','c2','d2','e2','f2','g2','h2'],
-    ['a1','b1','c1','d1','e1','f1','g1','h1']
-];
+            <div class="areaInstrucoes">
+                <h3>Sequência do Mate</h3>
+                <div>Dica: use o cavalo</div>
 
-var imagensXadrez = {
+                <div class="instrucoesBox">
+                    <h4>Instruções:</h4>
+                    <p>Execute a sequência exata do mate de Philidor.</p>
+                    <p><b>Clique na peça de origem e depois no destino.</b></p>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    'a1': './assets/torre-branca.svg',
-    'b1': './assets/cavalo-branco.svg',
-    'c1': './assets/bispo-branco.svg',
-    'd1': './assets/dama-branca.svg',
-    'e1': './assets/rei-branca.svg',
-    'f1': './assets/bispo-branco.svg',
-    'g1': './assets/cavalo-branco.svg',
-    'h1': './assets/torre-branca.svg',
+    <script>
+        const imagensXadrez = {
+            "e1": "./assets/torre-preto.svg",
+            "f1": "./assets/torre-preto.svg", 
+            "h1": "./assets/rei-preto.svg",
+            "c2": "./assets/peao-preto.svg",
+            "c3": "./assets/dama-branca.svg",
+            "h3": "./assets/peao-preto.svg",
+            "g4": "./assets/peao-preto.svg",
+            "d5": "./assets/peao-branco.svg",
+            "e5": "./assets/peao-preto.svg",
+            "g5": "./assets/cavalo-preto.svg",
+            "a6": "./assets/peao-branco.svg",
+            "c6": "./assets/peao-branco.svg",
+            "e6": "./assets/dama-preto.svg",
+            "b7": "./assets/peao-branco.svg",
+            "g7": "./assets/peao-branco.svg",
+            "h7": "./assets/peao-branco.svg",
+            "e8": "./assets/torre-branca.svg",
+            "f8": "./assets/torre-branca.svg",
+            "h8": "./assets/rei-branca.svg"
+        };
 
-    'a2': './assets/peao-branco.svg',
-    'b2': './assets/peao-branco.svg',
-    'c2': './assets/peao-branco.svg',
-    'd2': './assets/peao-branco.svg',
-    'e2': './assets/peao-branco.svg',
-    'f2': './assets/peao-branco.svg',
-    'g2': './assets/peao-branco.svg',
-    'h2': './assets/peao-branco.svg',
-    
-    'a8': './assets/torre-preto.svg',
-    'b8': './assets/cavalo-preto.svg',
-    'c8': './assets/bispo-preto.svg',
-    'd8': './assets/dama-preto.svg',
-    'e8': './assets/rei-preto.svg',
-    'f8': './assets/bispo-preto.svg',
-    'g8': './assets/cavalo-preto.svg',
-    'h8': './assets/torre-preto.svg',
-    
-    'a7': './assets/peao-preto.svg',
-    'b7': './assets/peao-preto.svg',
-    'c7': './assets/peao-preto.svg',
-    'd7': './assets/peao-preto.svg',
-    'e7': './assets/peao-preto.svg',
-    'f7': './assets/peao-preto.svg',
-    'g7': './assets/peao-preto.svg',
-    'h7': './assets/peao-preto.svg'
-};
+        const sequencia = [
+            {de: "g5", para: "f7", desc: "29... Nf2+"},
+            {de: "h8", para: "g8", desc: "30. Kg1"},
+            {de: "f7", para: "h6", desc: "30... Nh3+"},
+            {de: "g8", para: "h8", desc: "31. Kh1"},
+            {de: "e6", para: "g8", desc: "31... Qg1+"},
+            {de: "f8", para: "g8", desc: "32. Rxg1"},
+            {de: "h6", para: "f7", desc: "32... Nf2#"}
+        ];
 
+        let lanceAtual = 0;
+        let casaSelecionada = null;
+        let reiBrancoId = "h8";
 
-function criarTabuleiro() {
-    var tabuleiro = document.getElementById('tabuleiro');
-    tabuleiro.innerHTML = '';
-
-    for (var linha = 0; linha < 8; linha++) {
-        for (var coluna = 0; coluna < 8; coluna++) {
-            var nomeCasa = tabuleiroPos[linha][coluna];
-            var casa = document.createElement('div');
-            casa.className = `casa ${(linha + coluna) % 2 === 0 ? 'branco' : 'verde'}`;
-            casa.id = nomeCasa;
-            casa.setAttribute("onclick", "cliqueCasa('" + nomeCasa + "')");
-
-            if (imagensXadrez[nomeCasa]) {
-                var img = document.createElement('img');
-                img.src = imagensXadrez[nomeCasa];
-
-                img.className = 'peca ' +(imagensXadrez[nomeCasa].includes('branco') ? 'branca' : 'preto');
-                img.setAttribute("onclick", "cliqueCasa('" + nomeCasa + "')");
-                casa.appendChild(img);
-                casa.peca = img;
-                img.style.pointerEvents = "none";
-            } else {
-                casa.peca = null;
+        function criarTabuleiro() {
+            const tabuleiro = document.getElementById('tabuleiro');
+            const letras = ['a','b','c','d','e','f','g','h'];
+            for (let linha = 8; linha >= 1; linha--) {
+                for (let coluna = 0; coluna < 8; coluna++) {
+                    const letra = letras[coluna];
+                    const nomeCasa = letra + linha;
+                    const casa = document.createElement('div');
+                    casa.className = (linha + coluna) % 2 === 0 ? 'casa branco' : 'casa verde';
+                    casa.id = nomeCasa;
+                    if (imagensXadrez[nomeCasa]) {
+                        const img = document.createElement('img');
+                        img.src = imagensXadrez[nomeCasa];
+                        img.className = 'peca';
+                        casa.appendChild(img);
+                    }
+                    casa.onclick = () => cliqueCasa(nomeCasa);
+                    tabuleiro.appendChild(casa);
+                }
             }
-
-            tabuleiro.appendChild(casa);
+            atualizarDisplay();
         }
-    } 
-}
 
+        function cliqueCasa(id) {
+            if (lanceAtual >= sequencia.length) return;
+            const lance = sequencia[lanceAtual];
+            if (!casaSelecionada) {
+                if (id === lance.de) {
+                    casaSelecionada = id;
+                    document.getElementById(id).style.backgroundColor = 'yellow';
+                } else {
+                    alert(`LANCE ERRADO! Você deve clicar em: ${lance.de} Lance correto: ${lance.desc}`);
+                }
+            } else {
+                if (id === lance.para) {
+                    moverPeca(casaSelecionada, id);
+                    if (document.getElementById(id).children[0].src.includes('rei-branca')) {
+                        reiBrancoId = id;
+                    }
+                    casaSelecionada = null;
+                    lanceAtual++;
+                    if (lanceAtual === 1 || lanceAtual === 3 || lanceAtual === 5 || lanceAtual === 7) {
+                        const reiCasa = document.getElementById(reiBrancoId);
+                        if (reiCasa) reiCasa.style.backgroundColor = 'red';
+                    }
+                    atualizarDisplay();
+                } else {
+                    alert(`LANCE ERRADO! Você deve mover para: ${lance.para} Lance correto: ${lance.desc}`);
+                    restaurarCor(document.getElementById(casaSelecionada));
+                    casaSelecionada = null;
+                }
+            }
+        }
 
+        function moverPeca(de, para) {
+            const origem = document.getElementById(de);
+            const destino = document.getElementById(para);
+            if (destino.children.length > 0) destino.innerHTML = '';
+            const peca = origem.children[0];
+            destino.appendChild(peca);
+            origem.innerHTML = '';
+            restaurarCor(origem);
+            restaurarCor(destino);
+        }
 
-function cliqueCasa(id) {
-    var casa = document.getElementById(id);
+        function restaurarCor(casa) {
+            const id = casa.id;
+            const coord = id.split('');
+            const linha = Number(coord[1]);
+            const coluna = 'abcdefgh'.indexOf(coord[0]);
+            if ((linha + coluna) % 2 === 0) casa.style.backgroundColor = 'white';
+            else casa.style.backgroundColor = '#008000';
+        }
 
-    if (!casaSelecionada) {
-        tentarSelecionarPeca(id);
-        return;
-    }
+        function atualizarDisplay() {
+            const info = document.getElementById('infoJogo');
+            if (lanceAtual < sequencia.length) {
+                const vez = sequencia[lanceAtual].de === "g5" || sequencia[lanceAtual].de === "f7" || sequencia[lanceAtual].de === "e6" || sequencia[lanceAtual].de === "h6" ? 'Pretas' : 'Brancas';
+                info.innerHTML = `Vez das: ${vez}`;
+            } else {
+                info.innerHTML = "XEQUE-MATE! PARÁBENS!";
+            }
+        }
 
-    var casaSel = document.getElementById(casaSelecionada);
+        criarTabuleiro();
 
-    if (casa === casaSel) { 
-        casaSelecionada = null;
-        return;
-    }
-
-    if (casa.peca && suaPeca(casa.id)) {
-        tentarSelecionarPeca(casa.id);
-        return;
-    }
-    if (movimentosPecas.includes(id)) {
-        casaSelecionada = null;
-        movimentosPecas = [];
-    }
-}
-
-
-function suaPeca(id) {
-    var casa = document.getElementById(id);
-    if (!casa || !casa.peca) return false;
-    return (vezJogar === "branco" && casa.peca.className.includes("branca")) ||(vezJogar === "preto" && casa.peca.className.includes("preto"));
-}
-
-function tentarSelecionarPeca(id) {
-    var casa = document.getElementById(id);
-    if (!casa || !casa.peca) return; 
-    if (!suaPeca(id)) return;
-    casaSelecionada = id;
-}
-
-
-
-function estaVazia(id) {
-    var casa = document.getElementById(id);
-    return (!casa || !casa.peca);
-}
-
-</script>
+        document.getElementById('btnSair').onclick = () => {
+            sessionStorage.clear();
+            window.location.href = "tela-login.html";
+        };
+    </script>
+</body>
 </html>
