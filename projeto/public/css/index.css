@@ -175,3 +175,48 @@ justify-self: flex-end;
     font-weight: 600;
     text-decoration: none;
 }
+
+.sobre-mim {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 80px;
+    padding: 0 10%;
+    flex-wrap: wrap;
+}
+
+.sobre-mim-imagem {
+    text-align: center;
+}
+
+.sobre-mim img {
+    width: 450px;
+    height: 450px;
+    border-radius: 12px;
+    border: 1px solid #2a2a2a;
+    object-fit: cover;
+}
+
+.legenda {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    color: #bebec0;
+}
+
+.sobre-mim-texto {
+    max-width: 600px;
+}
+
+.sobre-mim-texto h2 {
+    color: #EFBF04;
+    font-size: 2rem;
+    margin-bottom: 20px;
+    font-weight: 800;
+}
+
+.sobre-mim-texto p {
+    line-height: 1.6;
+    color: #bebec0;
+    margin-bottom: 20px;
+    font-size: 1rem;
+}

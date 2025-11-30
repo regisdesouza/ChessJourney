@@ -2,20 +2,19 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Quiz | ChessJourney</title>
+    <title>ChessJourney | Quiz</title>
     <link rel="stylesheet" href="./css/quiz.css">
 </head>
-<body>
+<body onload="iniciarQuiz()">
 
 <div class="menuLateral">
     <h2>Painel</h2>
     <a href="./painel.html">Início</a>
-    <a href="./quiz.html">Quiz</a>
     <a href="./tabuleiro.html">Desafio</a>
     <a href="./dash-usuario.html">Estatísticas</a>
 </div>
 
-<div>
+<div class="container">
     <div id="imagemQuiz">
         <img src="./assets/Chess-pana.svg" alt="Chess Quiz">
     </div>
@@ -165,7 +164,6 @@ function finalizarQuiz() {
         "Você acertou " + acertos + " de " + quiz.perguntas.length;
 }
 
-window.onload = iniciarQuiz;
 </script>
 
 </body>

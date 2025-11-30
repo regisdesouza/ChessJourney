@@ -74,7 +74,6 @@ function obterDadosGrafico() {
                     document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
                     document.getElementById("kpiErros").innerText = acertos;
                     document.getElementById("kpiPerguntasRespondidas").innerText = totalRespondidas;
-
                     plotarGrafico([{tentativas, acertos}]);
                 });
 

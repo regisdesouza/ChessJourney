@@ -38,7 +38,7 @@ body {
     margin-bottom: 15px;
     font-weight: 600;
 }
-main {
+.container {
     flex: 1;
     padding: 20px 40px;
 }
