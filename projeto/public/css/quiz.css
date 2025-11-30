@@ -115,10 +115,8 @@ button {
     font-weight: 700;
     text-align: center;
 }
-
-/* Botões de Iniciar Quiz */
 #listaQuizzes .quizBox button {
-    background-color: #4CAF50; /* Verde */
+    background-color: #4CAF50; 
     color: white;
     border: none;
     padding: 10px 20px;
@@ -126,20 +124,14 @@ button {
     border-radius: 8px;
     cursor: pointer;
     font-weight: bold;
-    transition: background-color 0.3s, transform 0.2s;
 }
 
-#listaQuizzes .quizBox button:hover {
-    background-color: #45a049; /* Verde mais escuro */
-    transform: scale(1.05);
-}
 
 #listaQuizzes .quizBox {
     border: 1px solid #ddd;
     padding: 15px;
     margin-bottom: 15px;
     border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     display: flex;
     flex-direction: column;
     justify-content: space-between;

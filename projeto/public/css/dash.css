@@ -16,39 +16,34 @@ body, html {
 
 .container {
     display: flex;
-    min-height: 100vh;
+    height: 1000px;
 }
-
 .menuLateral {
-    width: 220px;
-    background: #222;
+    background: #1c1c1c;
+    border-right: 1px solid #2a2a2a;
     padding: 20px;
+    width: 220px;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    gap: 20px;
 }
 
+.menuLateral p {
+    margin-bottom: 15px;
+}
 .menuLateral h2 {
     color: #EFBF04;
-    font-size: 1.8rem;
-}
-
-.menuLateral .hello p {
-    color: #fff;
-    font-size: 0.9rem;
     margin-bottom: 20px;
+    font-size: 1.5rem;
 }
 
 .menuLateral a {
-    color: #fff;
+    color: white;
     text-decoration: none;
+    margin-bottom: 15px;
     font-weight: 600;
-    padding: 8px 0;
 }
 
-.menuLateral a:hover {
-    color: #EFBF04;
-}
 
 .conteudo {
     flex: 1;
@@ -113,4 +108,14 @@ canvas {
     color: white;
     text-align: center;
     margin-top: 10px;
+}
+
+#btnSair {
+    background: #EFBF04;
+    color: #121212;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20%;
 }

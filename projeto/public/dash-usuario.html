@@ -1,145 +1,148 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChessJourney | Dashboard</title>
-    <link rel="stylesheet" href="./css/dash.css" />
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ChessJourney | Estatísticas</title>
+    <link rel="stylesheet" href="./css/dash.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  </head>
+</head>
 
-  <body onload="obterDadosGrafico()">
+<body onload="obterDadosGrafico()">
     <div class="container">
-      <aside class="menuLateral">
-        <h2>ChessJourney</h2>
-        <div class="hello">
-          <p>Olá, <span id="b_usuario">usuário</span>!</p>
-        </div>
-        <a href="../painel.html">Inicío</a>
-        <a href="#">Gráficos</a>
-        <a href="#" onclick="limparSessao()">Sair</a>
-      </aside>
-
-      <main class="conteudo">
-        <div class="kpi-container">
-          <div class="kpi">
-            <h4>Desempenho Geral</h4>
-            <p id="">Continue assim!</p>
-          </div>
-          <div class="kpi">
-            <h4>Taxa de Acertos</h4>
-            <p id="kpiTaxaAcertos">70%</p>
-          </div>
-          <div class="kpi">
-            <h4>Acertos</h4>
-            <p id="kpiErros">4</p>
-          </div>
-          <div class="kpi">
-            <h4>Total Perguntas Respondidas</h4>
-            <p id="kpiPerguntasRespondidas">0</p>
-          </div>
+        <div class="menuLateral">
+            <h2>Estatísticas</h2>
+            <div class="hello"><p>Olá, <b><span id="b_usuario">usuário</span>!</b></p></div>
+            <a href="../painel.html">Inicío</a>
+            <a href="./tabuleiro.html">Desafio</a>
+            <a href="#">Estatísticas</a>
+            <button id="btnSair">Sair</button>
         </div>
 
-        <div class="dash">
-          <h3 class="tituloGraficos">Desempenho do Quiz</h3>
-          <div class="graph">
-            <canvas id="myChartCanvasQuiz"></canvas>
-          </div>
-          <div class="label-captura">
-            <p id="avisoCaptura"></p>
-          </div>
+        <div class="conteudo">
+            <div class="kpi-container">
+                <div class="kpi">
+                    <h4>Taxa de Acertos Geral</h4>
+                    <p id="kpiTaxaAcertos"></p>
+                </div>
+                <div class="kpi">
+                    <h4>Número Total de Acertos</h4>
+                    <p id="kpiErros">4</p>
+                </div>
+                <div class="kpi">
+                    <h4>Perguntas Respondidas</h4>
+                    <p id="kpiPerguntasRespondidas">0</p>
+                </div>
+            </div>
+
+            <div class="dash">
+                <h3 class="tituloGraficos">Desempenho do Quiz</h3>
+                <div class="graph">
+                    <canvas id="myChartCanvasQuiz"></canvas>
+                </div>
+                <div class="label-captura">
+                    <p id="avisoCaptura"></p>
+                </div>
+            </div>
         </div>
-      </main>
+
+
     </div>
 
-    <script>
-      b_usuario.innerHTML = sessionStorage.NOME_USUARIO;
+<script>
+b_usuario.innerHTML = sessionStorage.NOME_USUARIO;
 
-      let proximaAtualizacao;
+let proximaAtualizacao;
 
-      function obterDadosGrafico() {
-        const idUsuario = sessionStorage.ID_USUARIO;
+function obterDadosGrafico() {
+    if (proximaAtualizacao != undefined) clearTimeout(proximaAtualizacao);
 
-        fetch(`/dash/estatistica/${idUsuario}`, { cache: "no-store" })
-          .then((response) => {
-            if (response.ok) {
-              response.json().then((dados) => {
-                const tentativas = Number(dados.tentativas);
-                const acertos = Number(dados.acertos);
-                const totalRespondidas = tentativas;
-                const taxaAcertos =
-                  tentativas > 0
-                    ? ((acertos / tentativas) * 100).toFixed(1)
-                    : 0;
+    let idUsuario = sessionStorage.ID_USUARIO;
 
-                document.getElementById("kpiTaxaAcertos").innerHTML =
-                  taxaAcertos + "%";
-                document.getElementById("kpiErros").innerHTML = acertos;
-                document.getElementById("kpiPerguntasRespondidas").innerHTML =
-                  totalRespondidas;
+    fetch(`/dash/estatistica/${idUsuario}`, { cache: 'no-store' })
+        .then(response => {
+            if(response.ok){
+                response.json().then(dados => {
+                    const tentativas = Number(dados.tentativas);
+                    const acertos = Number(dados.acertos);
+                    const erros = tentativas - acertos;
+                    const totalRespondidas = tentativas;
+                    const taxaAcertos = tentativas > 0 ? ((acertos / tentativas) * 100).toFixed(1) : 0;
 
-                plotarGrafico(tentativas, acertos);
-              });
+                    document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
+                    document.getElementById("kpiErros").innerText = acertos;
+                    document.getElementById("kpiPerguntasRespondidas").innerText = totalRespondidas;
+
+                    plotarGrafico([{tentativas, acertos}]);
+                });
+
+
             }
-          })
-          .catch((erro) =>
-            console.error("Erro ao obter dados do gráfico:", erro)
-          );
-      }
+        }).catch(erro => console.error("Erro ao obter dados do gráfico:", erro));
+}
 
-      function plotarGrafico(tentativas, acertos) {
-        const ctx = document.getElementById("myChartCanvasQuiz");
-        ctx.innerHTML = "";
 
-        new Chart(ctx, {
-          type: "bar",
-          data: {
-            labels: ["Perguntas Respondidas", "Acertos"],
-            datasets: [
-              {
-                label: "Desempenho Geral",
-                data: [tentativas, acertos],
-                backgroundColor: ["#007bff", "#28a745"],
-                borderWidth: 2,
-              },
-            ],
-          },
-          options: { scales: { y: { beginAtZero: true } } },
-        });
+function plotarGrafico(resposta){
+    const labels = ["Perguntas Respondidas","Acertos"];
+    const dados = {
+        labels,
+        datasets:[{
+            label:"Desempenho do Usuário",
+            data:[resposta[0].tentativas,resposta[0].acertos],
+            backgroundColor:["#007bff","#28a745"],
+            borderWidth:2
+        }]
+    };
 
-        proximaAtualizacao = setTimeout(atualizarGrafico, 2000);
-      }
+    const config = {
+        type:'bar',
+        data:dados,
+        options:{scales:{y:{beginAtZero:true}}}
+    };
 
-      function atualizarGrafico() {
-        const idUsuario = sessionStorage.ID_USUARIO;
+    const ctx = document.getElementById("myChartCanvasQuiz");
+    if(window.myChart) window.myChart.destroy();
+    window.myChart = new Chart(ctx, config);
 
-        fetch(`/dash/estatistica/${idUsuario}`, { cache: "no-store" })
-          .then((response) => {
-            if (response.ok) {
-              response.json().then((novo) => {
-                const tentativas = Number(novo.tentativas);
-                const acertos = Number(novo.acertos);
-                const totalRespondidas = tentativas;
-                const taxaAcertos =
-                  tentativas > 0
-                    ? ((acertos / tentativas) * 100).toFixed(1)
-                    : 0;
+    proximaAtualizacao = setTimeout(()=> atualizarGrafico(dados, window.myChart),2000);
+}
 
-                document.getElementById("kpiTaxaAcertos").innerHTML =
-                  taxaAcertos + "%";
-                document.getElementById("kpiErros").innerHTML = acertos;
-                document.getElementById("kpiPerguntasRespondidas").innerHTML =
-                  totalRespondidas;
+function atualizarGrafico(dados, myChart){
+    const idUsuario = sessionStorage.ID_USUARIO;
 
-                plotarGrafico(tentativas, acertos);
-              });
+    fetch(`/dash/estatistica/${idUsuario}`, {cache:'no-store'})
+        .then(response=>{
+            if(response.ok){
+                response.json().then(novo=>{
+                    const tentativas = Number(novo.tentativas);
+                    const acertos = Number(novo.acertos);
+                    const erros = tentativas - acertos;
+                    const totalRespondidas = tentativas;
+                    const taxaAcertos = tentativas > 0 ? ((acertos / tentativas) * 100).toFixed(1) : 0;
+
+                    document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
+                    document.getElementById("kpiErros").innerText = acertos;
+                    document.getElementById("kpiPerguntasRespondidas").innerText = totalRespondidas;
+
+                    dados.datasets[0].data[0] = tentativas;
+                    dados.datasets[0].data[1] = acertos;
+                    myChart.update();
+
+                    proximaAtualizacao = setTimeout(()=> atualizarGrafico(dados, myChart),2000);
+                });
             } else {
-              proximaAtualizacao = setTimeout(atualizarGrafico, 2000);
+                proximaAtualizacao = setTimeout(()=> atualizarGrafico(dados,myChart),2000);
             }
-          })
-          .catch((erro) => console.error("Erro ao atualizar gráfico:", erro));
-      }
-    </script>
-  </body>
-</html>
+        }).catch(erro=>console.error("Erro ao atualizar gráfico:",erro));
+}
+
+        document.getElementById('btnSair').onclick = () => {
+            sessionStorage.clear();
+            window.location.href = "tela-login.html";
+        };
+</script>
+
+
+<html>

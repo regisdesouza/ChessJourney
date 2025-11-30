@@ -6,14 +6,13 @@
 <title>Painel</title>    
 <link rel="stylesheet" href="./css/painel.css">
 </head>
-<body>
+<body onload="carregarQuizzes()">
 
 <div class="menuLateral">
     <h2>Painel</h2>
     <a href="./painel.html">Início</a>
     <a href="./tabuleiro.html">Desafio</a>
     <a href="./dash-usuario.html">Estatísticas</a>
-    <a href="./dash-geral.html">Geral</a>
     <button id="btnSair">Sair</button>
 </div>
 
@@ -23,32 +22,27 @@
             <h3>Bem-vindo</h3>
             <p id="nomeUsuario"></p>
         </div>
-
-        <div class="cardInfo">
-            <h3>Email</h3>
-            <p id="emailUsuario"></p>
-        </div>
     </div>
 
-    <section id="quizzesSection">
+    <div id="secaoQuiz">
         <h3>Quizzes Disponíveis</h3>
         <div id="listaQuizzes"></div>
-    </section>
+    </div>
 
-    <section id="recomendacoesSection">
+    <div id="secaoRecomendacao">
         <h3>Recomendações</h3>
         <div id="listaRecomendacoes"></div>
-    </section>
+    </div>
 </div>
 
 <script>
-document.getElementById("nomeUsuario").innerText = sessionStorage.NOME_USUARIO || "Visitante";
-document.getElementById("emailUsuario").innerText = sessionStorage.EMAIL_USUARIO || "Não informado";
+
+document.getElementById("nomeUsuario").innerHTML = sessionStorage.NOME_USUARIO;
 
 document.getElementById("btnSair").onclick = function () {
     fetch("/usuarios/sair").then(() => {
-        sessionStorage.clear();
         window.location.href = "tela-login.html";
+        sessionStorage.clear();
     });
 };
 
@@ -114,7 +108,11 @@ function carregarRecomendacoes(quizzes) {
     }
 }
 
-window.onload = carregarQuizzes;
+function limparSessao() {
+    sessionStorage.clear(); 
+    window.location.href = "../tela-login.html"; 
+}
+
 </script>
 
 </body>
