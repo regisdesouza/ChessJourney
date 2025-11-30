@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ChessJourney | Tutorial de Xadrez</title>
+    <link rel="stylesheet" href="./css/tutorial.css" />
+</head>
+<body>
+    <header class="header">
+        <div class="header-container">
+            <h1 class="logo">ChessJourney</h1>
+            <nav class="navbar">
+                <a href="index.html">Início</a>
+                <a href="#">Tutorial</a>
+                <a href="tela-login.html">Login</a>
+                <a href="tela-cadastro.html">Cadastro</a>
+            </nav>
+        </div>
+    </header>
+    <div class="container">
+        <div class="secao">
+            <h2>O Tabuleiro</h2>
+            <p>O tabuleiro de xadrez possui 8 linhas (1 a 8) e 8 colunas (a a h), formando 64 casas alternadas em cores claras e escuras.</p>
+            <img src="./assets/tabuleiro.jpg" alt="" class="tabuleiro">
+        </div>
+
+        <div class="secao">
+            <h2>As Peças</h2>
+            <p>Existem 6 tipos de peças, cada jogador possui 16 peças no total.</p>
+            <ul>
+                <li><img src="./assets/peao-branco.svg" class="peca-img"> Peão: move 1 casa para frente (ou 2 no primeiro movimento).</li>
+                <li><img src="./assets/torre-branca.svg" class="peca-img"> Torre: move horizontal ou vertical.</li>
+                <li><img src="./assets/cavalo-branco.svg" class="peca-img"> Cavalo: movimento em "L", pula peças.</li>
+                <li><img src="./assets/bispo-branco.svg" class="peca-img"> Bispo: move diagonal.</li>
+                <li><img src="./assets/dama-branca.svg" class="peca-img"> Dama: move horizontal, vertical e diagonal.</li>
+                <li><img src="./assets/rei-branca.svg" class="peca-img"> Rei: move 1 casa em qualquer direção.</li>
+            </ul>
+        </div>
+
+        <div class="secao">
+            <h2>Objetivo do Jogo</h2>
+            <p>O objetivo é dar xeque-mate no rei adversário, colocando-o sob ataque sem possibilidade de fuga.</p>
+        </div>
+
+        <div class="secao">
+            <h2>Dicas para Iniciantes</h2>
+            <ul>
+                <li>Controle o centro do tabuleiro.</li>
+                <li>Desenvolva suas peças rapidamente.</li>
+                <li>Proteja seu rei com o roque.</li>
+                <li>Observe sempre os movimentos do adversário.</li>
+            </ul>
+            <button class="botao" onclick="window.location.href='tela-cadastro.html'">Cadastre-se</button>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-container">
+            <h4>Feito por Reginaldo S. Lima &copy; 2025</h4>
+            <span class="version">v1.0.0</span>
+        </div>
+    </footer>
+</body>
+</html>
