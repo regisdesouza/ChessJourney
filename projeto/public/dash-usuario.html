@@ -29,7 +29,7 @@
                 </div>
                 <div class="kpi">
                     <h4>Número Total de Acertos</h4>
-                    <p id="kpiErros">4</p>
+                    <p id="kpiAcertos">4</p>
                 </div>
                 <div class="kpi">
                     <h4>Perguntas Respondidas</h4>
@@ -71,9 +71,9 @@ function obterDadosGrafico() {
                     const totalRespondidas = tentativas;
                     const taxaAcertos = tentativas > 0 ? ((acertos / tentativas) * 100).toFixed(1) : 0;
 
-                    document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
-                    document.getElementById("kpiErros").innerText = acertos;
-                    document.getElementById("kpiPerguntasRespondidas").innerText = totalRespondidas;
+                    document.getElementById("kpiTaxaAcertos").innerHTML = taxaAcertos + "%";
+                    document.getElementById("kpiAcertos").innerHTML = acertos;
+                    document.getElementById("kpiPerguntasRespondidas").innerHTML = totalRespondidas;
                     plotarGrafico([{tentativas, acertos}]);
                 });
 
@@ -121,9 +121,9 @@ function atualizarGrafico(dados, myChart){
                     const totalRespondidas = tentativas;
                     const taxaAcertos = tentativas > 0 ? ((acertos / tentativas) * 100).toFixed(1) : 0;
 
-                    document.getElementById("kpiTaxaAcertos").innerText = taxaAcertos + "%";
-                    document.getElementById("kpiErros").innerText = acertos;
-                    document.getElementById("kpiPerguntasRespondidas").innerText = totalRespondidas;
+                    document.getElementById("kpiTaxaAcertos").innerHTML = taxaAcertos + "%";
+                    document.getElementById("kpiAcertos").innerHTML = acertos;
+                    document.getElementById("kpiPerguntasRespondidas").innerHTML = totalRespondidas;
 
                     dados.datasets[0].data[0] = tentativas;
                     dados.datasets[0].data[1] = acertos;
