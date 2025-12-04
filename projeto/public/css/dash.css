@@ -50,14 +50,16 @@ body, html {
     padding: 30px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
+    justify-content: center;
 }
 
 .kpi-container {
     display: flex;
-    gap: 20px;
+    gap: 6%;
     flex-wrap: wrap;
-    justify-content: flex-start;
+    justify-content: center;
+    margin-bottom: 5%;
+    
 }
 
 .kpi {

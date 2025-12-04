@@ -33,17 +33,6 @@ CREATE TABLE usuario_quiz (
     FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz)
 );
 
-CREATE TABLE progresso_quiz (
-    id_progresso INT PRIMARY KEY AUTO_INCREMENT,
-    id_usuario INT NOT NULL,
-    id_quiz INT NOT NULL,
-    status_progresso ENUM('pendente','concluido') DEFAULT 'pendente',
-    tentativas INT DEFAULT 0,
-    data_inicio TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    data_conclusao TIMESTAMP NULL DEFAULT NULL,
-    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
-    FOREIGN KEY (id_quiz) REFERENCES quiz(id_quiz)
-);
 
 CREATE TABLE pergunta (
     id_pergunta INT PRIMARY KEY AUTO_INCREMENT,
@@ -191,3 +180,14 @@ INSERT INTO recomendacao (titulo, tipo, descricao, conteudo, id_quiz, url_recurs
 ('Estratégias de Abertura', 'Conceito', 'Aprenda a controlar o centro do tabuleiro', 'Siga o aritgo para mais informações', 3, 'https://www.xadrezforte.com.br/guia-definitivo-para-as-aberturas-de-xadrez/'),
 ('Finais Simples', 'Livro', 'Aprenda técnicas de finais simples', 'Acessar o artigo', 4, 'https://www.chess.com/article/view/chess-endgames');
 
+CREATE VIEW vw_acertos_erros AS 
+SELECT 
+id_usuario,
+    COUNT(*) AS tentativas,
+    SUM(CASE WHEN id_alternativa_escolhida = correta THEN 1 ELSE 0 END) AS acertos
+FROM resposta_usuario
+GROUP BY id_usuario;
+
+SELECT * FROM vw_acertos_erros;
+
+SELECT * FROM vw_acertos_erros WHERE id_usuario = 1;

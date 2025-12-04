@@ -2,11 +2,7 @@ var database = require("../database/config");
 
 function estatistica(idUsuario) {
     var instrucao = `
-SELECT 
-    COUNT(*) AS tentativas,
-    SUM(CASE WHEN id_alternativa_escolhida = correta THEN 1 ELSE 0 END) AS acertos
-FROM resposta_usuario
-WHERE id_usuario = ${idUsuario};
+    SELECT * FROM vw_acertos_erros WHERE id_usuario = ${idUsuario};
 `
 
     return database.executar(instrucao);
